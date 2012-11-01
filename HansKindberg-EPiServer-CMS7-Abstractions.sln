@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HansKindberg.EPiServer.Cms7.Abstractions", "HansKindberg.EPiServer.Cms7.Abstractions\HansKindberg.EPiServer.Cms7.Abstractions.csproj", "{8018CF28-AD3B-44E6-AD7F-45B26C50D895}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HansKindberg.EPiServer.Cms7.Abstractions.Tests", "HansKindberg.EPiServer.Cms7.Abstractions.Tests\HansKindberg.EPiServer.Cms7.Abstractions.Tests.csproj", "{441B8EAF-185B-4D87-96C8-90758AEACDAA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HansKindberg.EPiServer.Cms7.Abstractions.ShimTests", "HansKindberg.EPiServer.Cms7.Abstractions.ShimTests\HansKindberg.EPiServer.Cms7.Abstractions.ShimTests.csproj", "{5C1F2383-48D1-4DA4-87A1-A15AE7517A56}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Properties", "Properties", "{6B89D6EA-68A6-4536-80ED-706F8692732A}"
+	ProjectSection(SolutionItems) = preProject
+		Properties\SolutionInfo.cs = Properties\SolutionInfo.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeAnalysis", "CodeAnalysis", "{5BACF855-6C33-4ECE-8892-0EBC31850DDC}"
+	ProjectSection(SolutionItems) = preProject
+		CodeAnalysis\Solution.ruleset = CodeAnalysis\Solution.ruleset
+		CodeAnalysis\Solution.Tests.ruleset = CodeAnalysis\Solution.Tests.ruleset
+		CodeAnalysis\SolutionDictionary.xml = CodeAnalysis\SolutionDictionary.xml
+		CodeAnalysis\SolutionSuppressions.cs = CodeAnalysis\SolutionSuppressions.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4968E322-90DC-41DC-B61C-624747DD8E32}"
+	ProjectSection(SolutionItems) = preProject
+		HansKindberg.snk = HansKindberg.snk
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{55AC17B3-DA88-4780-90F2-153BA616B6A2}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.config = .nuget\NuGet.config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPiServer.Tests", "EPiServer.Tests\EPiServer.Tests.csproj", "{9989E107-F4FE-4A9C-A98C-3A00EDFE4F12}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8018CF28-AD3B-44E6-AD7F-45B26C50D895}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8018CF28-AD3B-44E6-AD7F-45B26C50D895}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8018CF28-AD3B-44E6-AD7F-45B26C50D895}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8018CF28-AD3B-44E6-AD7F-45B26C50D895}.Release|Any CPU.Build.0 = Release|Any CPU
+		{441B8EAF-185B-4D87-96C8-90758AEACDAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{441B8EAF-185B-4D87-96C8-90758AEACDAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{441B8EAF-185B-4D87-96C8-90758AEACDAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{441B8EAF-185B-4D87-96C8-90758AEACDAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C1F2383-48D1-4DA4-87A1-A15AE7517A56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C1F2383-48D1-4DA4-87A1-A15AE7517A56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C1F2383-48D1-4DA4-87A1-A15AE7517A56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C1F2383-48D1-4DA4-87A1-A15AE7517A56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9989E107-F4FE-4A9C-A98C-3A00EDFE4F12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9989E107-F4FE-4A9C-A98C-3A00EDFE4F12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9989E107-F4FE-4A9C-A98C-3A00EDFE4F12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9989E107-F4FE-4A9C-A98C-3A00EDFE4F12}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

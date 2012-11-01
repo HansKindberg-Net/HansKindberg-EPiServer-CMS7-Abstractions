@@ -1,0 +1,10 @@
+_ReSharper*/
+bin/
+debug/
+obj/
+packages/
+release/
+testresults/
+*.exe
+*.suo
+*.user
