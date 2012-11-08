@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using EPiServer.Core;
+using HansKindberg.EPiServer.Cms7.Abstractions.Core.Extensions;
 
 // ReSharper disable CheckNamespace
 
@@ -69,9 +71,22 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.Core // ReSharper restore Che
 
 		#region Methods
 
+		public override int CompareTo(object obj)
+		{
+			if(ReferenceEquals(obj, null))
+				throw new ArgumentNullException("obj");
+
+			PageReferenceWrapper pageReferenceWrapper = obj as PageReferenceWrapper;
+
+			if(ReferenceEquals(pageReferenceWrapper, null))
+				throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "The passed object is not of type \"{0}\".", this.GetType().FullName));
+
+			return ReferenceEquals(this, pageReferenceWrapper) ? 0 : this.PageReference.CompareTo(pageReferenceWrapper.PageReference);
+		}
+
 		public override bool CompareToIgnoreWorkID(ContentReference contentReference)
 		{
-			return this.PageReference.CompareToIgnoreWorkID(ToPageReference(contentReference));
+			return this.PageReference.CompareToIgnoreWorkID(contentReference.ToPageReference());
 		}
 
 		public override ContentReference Copy()
@@ -89,9 +104,19 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.Core // ReSharper restore Che
 			return new PageReferenceWrapper(this.PageReference.CreateWritableClone());
 		}
 
+		public override bool Equals(object obj)
+		{
+			return this.PageReference.Equals(obj);
+		}
+
 		public static PageReferenceWrapper FromPageReference(PageReference pageReference)
 		{
 			return pageReference;
+		}
+
+		public override int GetHashCode()
+		{
+			return this.PageReference.GetHashCode();
 		}
 
 		public override void MakeReadOnly()
@@ -104,9 +129,9 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.Core // ReSharper restore Che
 			return new PageReferenceWrapper(PageReference.Parse(complexReference));
 		}
 
-		protected internal static PageReference ToPageReference(ContentReference contentReference)
+		public override string ToString()
 		{
-			return contentReference == null ? null : new PageReference(contentReference.ID, contentReference.WorkID, contentReference.ProviderName, contentReference.GetPublishedOrLatest);
+			return this.PageReference.ToString();
 		}
 
 		#endregion
@@ -116,6 +141,11 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.Core // ReSharper restore Che
 		public static implicit operator PageReferenceWrapper(PageReference pageReference)
 		{
 			return pageReference == null ? null : new PageReferenceWrapper(pageReference);
+		}
+
+		public static implicit operator PageReference(PageReferenceWrapper pageReferenceWrapper)
+		{
+			return pageReferenceWrapper == null ? null : pageReferenceWrapper.PageReference;
 		}
 
 		#endregion

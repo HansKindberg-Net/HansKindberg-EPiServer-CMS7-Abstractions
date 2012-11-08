@@ -8,230 +8,209 @@ namespace EPiServer.Tests.Core
 	[TestClass]
 	public class ContentReferenceTest
 	{
-		#region Fields
-
-		private static readonly Random _random = new Random(DateTime.Now.Millisecond);
-
-		#endregion
-
 		#region Methods
 
 		[TestMethod]
-		public void CompareTo_IfTheIdsAreEqualAndTheInstanceProviderNameIsGreaterThanTheObjectParameterProviderName_ShouldReturnMinusOne()
+		public void EqualityOperator_IfBothParametersAreNull_ShouldReturnTrue()
 		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(0, int.MaxValue), _random.Next(0, int.MaxValue), "1");
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
-			contentReference.ProviderName = "2";
-			Assert.AreEqual(1, 2.CompareTo(1));
-			Assert.AreEqual(1, string.Compare("2", "1", StringComparison.Ordinal));
-			Assert.AreEqual(-1, contentReference.CompareTo(contentReferenceToCompareWith));
-		}
-
-		[TestMethod]
-		public void CompareTo_IfTheIdsAreEqualAndTheInstanceProviderNameIsLessThanTheObjectParameterProviderName_ShouldReturnMinusOne()
-		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(0, int.MaxValue), _random.Next(0, int.MaxValue), "2");
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
-			contentReference.ProviderName = "1";
-			Assert.AreEqual(-1, 1.CompareTo(2));
-			Assert.AreEqual(-1, string.Compare("1", "2", StringComparison.Ordinal));
-			Assert.AreEqual(-1, contentReference.CompareTo(contentReferenceToCompareWith));
-		}
-
-		[TestMethod]
-		public void CompareTo_IfTheIdsAreEqualAndTheInstanceWorkIdIsGreaterThanTheObjectParameterWorkId_ShouldReturnMinusOne()
-		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(0, int.MaxValue), _random.Next(0, int.MaxValue - 1), null);
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
-			contentReference.WorkID = contentReference.WorkID + 1;
-			Assert.AreEqual(-1, contentReference.CompareTo(contentReferenceToCompareWith));
-		}
-
-		[TestMethod]
-		public void CompareTo_IfTheIdsAreEqualAndTheInstanceWorkIdIsLessThanTheObjectParameterWorkId_ShouldReturnMinusOne()
-		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(0, int.MaxValue), _random.Next(1, int.MaxValue), null);
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
-			contentReference.WorkID = contentReference.WorkID - 1;
-			Assert.AreEqual(-1, contentReference.CompareTo(contentReferenceToCompareWith));
-		}
-
-		[TestMethod]
-		public void CompareTo_IfTheInstanceIdIsGreaterThanTheObjectParameterId_ShouldReturnOne()
-		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(0, int.MaxValue - 1), 0, null);
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
-			contentReference.ID = contentReference.ID + 1;
-			Assert.AreEqual(1, contentReference.CompareTo(contentReferenceToCompareWith));
-		}
-
-		[TestMethod]
-		public void CompareTo_IfTheInstanceIdIsLessThanTheObjectParameterId_ShouldReturnMinusOne()
-		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(1, int.MaxValue), 0, null);
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
-			contentReference.ID = contentReference.ID - 1;
-			Assert.AreEqual(-1, contentReference.CompareTo(contentReferenceToCompareWith));
-		}
-
-		[TestMethod]
-		[ExpectedException(typeof(ArgumentException))]
-		public void CompareTo_IfTheObjectParameterIsNotOfTypeContentReference_ShouldThrowAnArgumentException()
-		{
-			// ReSharper disable ReturnValueOfPureMethodIsNotUsed
-			new Mock<ContentReference> {CallBase = true}.Object.CompareTo(new object());
-			// ReSharper restore ReturnValueOfPureMethodIsNotUsed
-		}
-
-		[TestMethod]
-		[ExpectedException(typeof(ArgumentException))]
-		public void CompareTo_IfTheObjectParameterIsNull_ShouldThrowAnArgumentException()
-		{
-			// ReSharper disable ReturnValueOfPureMethodIsNotUsed
-			new Mock<ContentReference> {CallBase = true}.Object.CompareTo(null);
-			// ReSharper restore ReturnValueOfPureMethodIsNotUsed
-		}
-
-		[TestMethod]
-		public void CompareTo_IfTheObjectParameterIsTheSameAsTheInstance_ShouldReturnZero()
-		{
-			ContentReference contentReference = new Mock<ContentReference> {CallBase = true}.Object;
-			Assert.AreEqual(0, contentReference.CompareTo(contentReference));
-		}
-
-		private static ContentReference CopyContentReference(ContentReference contentReferenceToCopy)
-		{
-			Mock<ContentReference> contentReferenceMock = new Mock<ContentReference> {CallBase = true};
-			contentReferenceMock.SetupProperty(contentReference => contentReference.ID, contentReferenceToCopy.ID);
-			contentReferenceMock.SetupProperty(contentReference => contentReference.WorkID, contentReferenceToCopy.WorkID);
-			contentReferenceMock.SetupProperty(contentReference => contentReference.ProviderName, contentReferenceToCopy.ProviderName);
-			return contentReferenceMock.Object;
-		}
-
-		private static ContentReference CreateContentReference(int id, int workId, string providerName)
-		{
-			Mock<ContentReference> contentReferenceMock = new Mock<ContentReference> {CallBase = true};
-			contentReferenceMock.SetupProperty(contentReference => contentReference.ID, id);
-			contentReferenceMock.SetupProperty(contentReference => contentReference.WorkID, workId);
-			contentReferenceMock.SetupProperty(contentReference => contentReference.ProviderName, providerName);
-			return contentReferenceMock.Object;
-		}
-
-		private static ContentReference CreateRandomContentReference()
-		{
-			return CreateContentReference(CreateRandomInteger(), CreateRandomInteger(), CreateRandomProviderName());
-		}
-
-		private static int CreateRandomInteger()
-		{
-			return _random.Next(int.MinValue, int.MaxValue);
-		}
-
-		private static string CreateRandomProviderName()
-		{
-			switch(_random.Next(0, int.MaxValue)%4)
-			{
-				case 0:
-					return null;
-				case 1:
-					return string.Empty;
-				case 2:
-					return " ";
-				default:
-					return Guid.NewGuid().ToString();
-			}
-		}
-
-		[TestMethod]
-		public void Equals_IfTheIdAndTheWorkIdAndTheProviderNameAreEqual_ShouldReturnTrue()
-		{
-			ContentReference contentReference = CreateRandomContentReference();
-			Assert.IsTrue(contentReference.Equals(CopyContentReference(contentReference)));
-		}
-
-		[TestMethod]
-		public void Equals_IfTheIdIsNotEqual_ShouldReturnFalse()
-		{
-			ContentReference contentReference = CreateRandomContentReference();
-			ContentReference contentReferenceCopy = CopyContentReference(contentReference);
-			contentReferenceCopy.ID = contentReferenceCopy.ID + 1;
-			Assert.IsFalse(contentReference.Equals(contentReferenceCopy));
-		}
-
-		[TestMethod]
-		public void Equals_IfTheObjectParameterIsNotOfTypeContentReference_ShouldReturnFalse()
-		{
-			Assert.IsFalse(new Mock<ContentReference> {CallBase = true}.Object.Equals(new object()));
-		}
-
-		[TestMethod]
-		public void Equals_IfTheObjectParameterIsNull_ShouldReturnFalse()
-		{
-			Assert.IsFalse(new Mock<ContentReference> {CallBase = true}.Object.Equals(null));
-		}
-
-		[TestMethod]
-		public void Equals_IfTheObjectParameterIsTheSameInstance_ShouldReturnTrue()
-		{
-			ContentReference contentReference = new Mock<ContentReference> {CallBase = true}.Object;
 			// ReSharper disable EqualExpressionComparison
-			Assert.IsTrue(contentReference.Equals(contentReference));
+			Assert.IsTrue((ContentReference) null == null);
 			// ReSharper restore EqualExpressionComparison
 		}
 
 		[TestMethod]
-		public void Equals_IfTheProviderNameIsNotEqual_ShouldReturnFalse()
+		public void EqualityOperator_IfBothParametersAreTheSameInstance_ShouldReturnTrue()
 		{
-			ContentReference contentReference = CreateRandomContentReference();
-			ContentReference contentReferenceCopy = CopyContentReference(contentReference);
-
-			if(contentReferenceCopy.ProviderName == null)
-				contentReferenceCopy.ProviderName = string.Empty;
-			else if(contentReferenceCopy.ProviderName.Length == 0)
-				contentReferenceCopy.ProviderName = " ";
-			else if(contentReferenceCopy.ProviderName == " ")
-				contentReferenceCopy.ProviderName = Guid.NewGuid().ToString();
-			else
-				contentReferenceCopy.ProviderName = null;
-
-			Assert.IsFalse(contentReference.Equals(contentReferenceCopy));
+			ContentReference contentReference = Mock.Of<ContentReference>();
+#pragma warning disable 1718
+			// ReSharper disable EqualExpressionComparison
+			Assert.IsTrue(contentReference == contentReference);
+			// ReSharper restore EqualExpressionComparison
+#pragma warning restore 1718
 		}
 
 		[TestMethod]
-		public void Equals_IfTheWorkIdIsNotEqual_ShouldReturnFalse()
+		public void EqualityOperator_IfOneParametersIsNull_ShouldReturnFalse()
 		{
-			ContentReference contentReference = CreateRandomContentReference();
-			ContentReference contentReferenceCopy = CopyContentReference(contentReference);
-			contentReferenceCopy.WorkID = contentReferenceCopy.WorkID + 1;
-			Assert.IsFalse(contentReference.Equals(contentReferenceCopy));
+			Assert.IsFalse(null == Mock.Of<ContentReference>());
+			Assert.IsFalse(Mock.Of<ContentReference>() == null);
 		}
 
 		[TestMethod]
-		public void GetHashCode_IfTheProviderNameIsNotNull_ShouldReturnIdAddedWithWorkIdAddedWithTheHashCodeOfTheProviderName()
+		public void EqualityOperator_IfTheParametersAreNotNullAndAreDifferentInstances_ShouldCallEqualsOnTheFirstParameter()
 		{
-			ContentReference contentReference = CreateRandomContentReference();
-			contentReference.ProviderName = Guid.NewGuid().ToString();
-			Assert.AreEqual(contentReference.ID + contentReference.WorkID + contentReference.ProviderName.GetHashCode(), contentReference.GetHashCode());
+			Mock<ContentReference> contentReferenceMock = new Mock<ContentReference>();
+			contentReferenceMock.Verify(contentReference => contentReference.Equals(It.IsAny<object>()), Times.Never());
+			Assert.IsNotNull(contentReferenceMock.Object == Mock.Of<ContentReference>()); // Will not throw a NotImplementedException because the method is not setup and CallBase is not set to true on the mock.
+			contentReferenceMock.Verify(contentReference => contentReference.Equals(It.IsAny<object>()), Times.Once());
 		}
 
 		[TestMethod]
-		public void GetHashCode_IfTheProviderNameIsNull_ShouldReturnIdAddedWithWorkId()
+		[ExpectedException(typeof(NotImplementedException))]
+		public void Equals_ShouldThrowANotImplementedException_BecauseTheMethodMustBeImplementedInTheDerivedClass()
 		{
-			ContentReference contentReference = CreateRandomContentReference();
-			contentReference.ProviderName = null;
-			Assert.AreEqual(contentReference.ID + contentReference.WorkID, contentReference.GetHashCode());
+			// ReSharper disable ReturnValueOfPureMethodIsNotUsed
+			new Mock<ContentReference> {CallBase = true}.Object.Equals(It.IsAny<object>());
+			// ReSharper restore ReturnValueOfPureMethodIsNotUsed
 		}
 
 		[TestMethod]
-		public void ToString_IfTheIdIsZeroAndTheWorkIdIsMinusOne_ShouldReturnAHyphen()
+		[ExpectedException(typeof(NotImplementedException))]
+		public void GetHashCode_ShouldThrowANotImplementedException_BecauseTheMethodMustBeImplementedInTheDerivedClass()
 		{
-			Assert.AreEqual("-", CreateContentReference(0, -1, "Test").ToString());
+			// ReSharper disable ReturnValueOfPureMethodIsNotUsed
+			new Mock<ContentReference> {CallBase = true}.Object.GetHashCode();
+			// ReSharper restore ReturnValueOfPureMethodIsNotUsed
 		}
 
 		[TestMethod]
-		public void ToString_IfTheIdIsZeroAndTheWorkIdIsNotMinusOne_ShouldReturnAnEmptyString()
+		public void GreaterThanOperator_IfBothParametersAreNotNull_ShouldCallCompareToOnTheFirstParameter()
 		{
-			Assert.AreEqual(string.Empty, CreateContentReference(0, 0, "Test").ToString());
+			Mock<ContentReference> contentReferenceMock = new Mock<ContentReference>();
+			contentReferenceMock.Verify(contentReference => contentReference.CompareTo(It.IsAny<object>()), Times.Never());
+			Assert.IsNotNull(contentReferenceMock.Object > Mock.Of<ContentReference>());
+			contentReferenceMock.Verify(contentReference => contentReference.CompareTo(It.IsAny<object>()), Times.Once());
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void GreaterThanOperator_IfBothParametersAreNull_ShouldThrowAnArgumentNullException()
+		{
+			try
+			{
+				Assert.IsNotNull((ContentReference) null > null);
+			}
+			catch(ArgumentNullException argumentNullException)
+			{
+				if(argumentNullException.ParamName == "firstContentReference")
+					throw;
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void GreaterThanOperator_IfTheFirstParameterIsNull_ShouldThrowAnArgumentNullException()
+		{
+			try
+			{
+				Assert.IsNotNull(null > Mock.Of<ContentReference>());
+			}
+			catch(ArgumentNullException argumentNullException)
+			{
+				if(argumentNullException.ParamName == "firstContentReference")
+					throw;
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void GreaterThanOperator_IfTheSecondParameterIsNull_ShouldThrowAnArgumentNullException()
+		{
+			try
+			{
+				Assert.IsNotNull(Mock.Of<ContentReference>() > null);
+			}
+			catch(ArgumentNullException argumentNullException)
+			{
+				if(argumentNullException.ParamName == "secondContentReference")
+					throw;
+			}
+		}
+
+		[TestMethod]
+		public void InequalityOperator_IfBothParametersAreNull_ShouldReturnFalse()
+		{
+			Assert.IsFalse((ContentReference) null != null);
+		}
+
+		[TestMethod]
+		public void InequalityOperator_IfBothParametersAreTheSameInstance_ShouldReturnFalse()
+		{
+			ContentReference contentReference = Mock.Of<ContentReference>();
+#pragma warning disable 1718
+			// ReSharper disable EqualExpressionComparison
+			Assert.IsFalse(contentReference != contentReference);
+			// ReSharper restore EqualExpressionComparison
+#pragma warning restore 1718
+		}
+
+		[TestMethod]
+		public void InequalityOperator_IfOneParametersIsNull_ShouldReturnTrue()
+		{
+			Assert.IsTrue(null != Mock.Of<ContentReference>());
+			Assert.IsTrue(Mock.Of<ContentReference>() != null);
+		}
+
+		[TestMethod]
+		public void InequalityOperator_IfTheParametersAreNotNullAndAreDifferentInstances_ShouldCallEqualsOnTheFirstParameter()
+		{
+			Mock<ContentReference> contentReferenceMock = new Mock<ContentReference>();
+			contentReferenceMock.Verify(contentReference => contentReference.Equals(It.IsAny<object>()), Times.Never());
+			Assert.IsNotNull(contentReferenceMock.Object != Mock.Of<ContentReference>()); // Will not throw a NotImplementedException because the method is not setup and CallBase is not set to true on the mock.
+			contentReferenceMock.Verify(contentReference => contentReference.Equals(It.IsAny<object>()), Times.Once());
+		}
+
+		[TestMethod]
+		public void LessThanOperator_IfBothParametersAreNotNull_ShouldCallCompareToOnTheFirstParameter()
+		{
+			Mock<ContentReference> contentReferenceMock = new Mock<ContentReference>();
+			contentReferenceMock.Verify(contentReference => contentReference.CompareTo(It.IsAny<object>()), Times.Never());
+			Assert.IsNotNull(contentReferenceMock.Object < Mock.Of<ContentReference>());
+			contentReferenceMock.Verify(contentReference => contentReference.CompareTo(It.IsAny<object>()), Times.Once());
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void LessThanOperator_IfBothParametersAreNull_ShouldThrowAnArgumentNullException()
+		{
+			try
+			{
+				Assert.IsNotNull((ContentReference) null < null);
+			}
+			catch(ArgumentNullException argumentNullException)
+			{
+				if(argumentNullException.ParamName == "firstContentReference")
+					throw;
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void LessThanOperator_IfTheFirstParameterIsNull_ShouldThrowAnArgumentNullException()
+		{
+			try
+			{
+				Assert.IsNotNull(null < Mock.Of<ContentReference>());
+			}
+			catch(ArgumentNullException argumentNullException)
+			{
+				if(argumentNullException.ParamName == "firstContentReference")
+					throw;
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void LessThanOperator_IfTheSecondParameterIsNull_ShouldThrowAnArgumentNullException()
+		{
+			try
+			{
+				Assert.IsNotNull(Mock.Of<ContentReference>() < null);
+			}
+			catch(ArgumentNullException argumentNullException)
+			{
+				if(argumentNullException.ParamName == "secondContentReference")
+					throw;
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(NotImplementedException))]
+		public void ToString_ShouldThrowANotImplementedException_BecauseTheMethodMustBeImplementedInTheDerivedClass()
+		{
+			// ReSharper disable ReturnValueOfPureMethodIsNotUsed
+			new Mock<ContentReference> {CallBase = true}.Object.ToString();
+			// ReSharper restore ReturnValueOfPureMethodIsNotUsed
 		}
 
 		#endregion

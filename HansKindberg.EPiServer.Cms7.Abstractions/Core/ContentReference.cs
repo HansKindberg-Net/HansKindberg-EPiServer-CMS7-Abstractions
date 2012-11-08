@@ -1,15 +1,22 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
+using HansKindberg.EPiServer.Cms7.Abstractions.Core;
 
 namespace EPiServer.Core
 {
-	[SuppressMessage("Microsoft.Design", "CA1036:OverrideMethodsOnComparableTypes")]
 	public abstract class ContentReference : IComparable, EPiServer.Data.Entity.IReadOnly
 	{
+		#region Fields
+
+		[SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")] public static readonly ContentReference EmptyReference = new PageReferenceWrapper(PageReference.EmptyReference);
+		[SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")] public static readonly ContentReference SelfReference = new PageReferenceWrapper(PageReference.SelfReference);
+
+		#endregion
+
 		#region Properties
 
 		public abstract bool GetPublishedOrLatest { get; }
+		public static ContentReference GlobalBlockFolder { get; set; }
 		// ReSharper disable InconsistentNaming
 		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
 		public abstract int ID { get; set; }
@@ -18,6 +25,13 @@ namespace EPiServer.Core
 		public abstract bool IsExternalProvider { get; }
 		public abstract bool IsReadOnly { get; }
 		public abstract string ProviderName { get; set; }
+		public static PageReference RootPage { get; set; }
+		public static ContentReference SiteBlockFolder { get; set; }
+		public static PageReference StartPage { get; set; }
+
+		[SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "WasteBasket")]
+		public static PageReference WasteBasket { get; set; }
+
 		// ReSharper disable InconsistentNaming
 		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
 		public abstract int WorkID { get; set; }
@@ -26,22 +40,7 @@ namespace EPiServer.Core
 
 		#region Methods
 
-		public virtual int CompareTo(object obj)
-		{
-			ContentReference contentReference = obj as ContentReference;
-
-			if(contentReference == null)
-				throw new ArgumentException("Object is not an ContentReference");
-
-			if(this == contentReference)
-				return 0;
-
-			if(this.ID > contentReference.ID)
-				return 1;
-
-			return -1;
-		}
-
+		public abstract int CompareTo(object obj);
 		// ReSharper disable InconsistentNaming
 		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
 		public abstract bool CompareToIgnoreWorkID(ContentReference contentReference);
@@ -51,36 +50,34 @@ namespace EPiServer.Core
 		public abstract ContentReference CreateReferenceWithoutVersion();
 		public abstract object CreateWritableClone();
 
+		[SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
 		public override bool Equals(object obj)
 		{
-			return this == (obj as ContentReference);
+			throw new NotImplementedException("The method must be implemented in the derived class.");
 		}
 
+		[SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
 		public override int GetHashCode()
 		{
-			return this.ID + this.WorkID + (this.ProviderName == null ? 0 : this.ProviderName.GetHashCode());
+			throw new NotImplementedException("The method must be implemented in the derived class.");
 		}
 
 		public abstract void MakeReadOnly();
 		public abstract ContentReference ParseReference(string complexReference);
 
+		private static void ThrowArgumentNullExceptionIfAnyParameterIsNull(ContentReference firstContentReference, ContentReference secondContentReference)
+		{
+			if(ReferenceEquals(firstContentReference, null))
+				throw new ArgumentNullException("firstContentReference");
+
+			if(ReferenceEquals(secondContentReference, null))
+				throw new ArgumentNullException("secondContentReference");
+		}
+
+		[SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
 		public override string ToString()
 		{
-			if(this.ID == 0)
-				return this.WorkID == -1 ? "-" : string.Empty;
-
-			string contentReferenceString = this.ID.ToString(CultureInfo.InvariantCulture);
-
-			if(this.WorkID != 0)
-				contentReferenceString = contentReferenceString + "_" + this.WorkID.ToString(CultureInfo.InvariantCulture);
-
-			if(this.ProviderName == null)
-				return contentReferenceString;
-
-			if(this.WorkID == 0)
-				return contentReferenceString + "__" + this.ProviderName;
-
-			return contentReferenceString + "_" + this.ProviderName;
+			throw new NotImplementedException("The method must be implemented in the derived class.");
 		}
 
 		#endregion
@@ -95,12 +92,26 @@ namespace EPiServer.Core
 			if(ReferenceEquals(firstContentReference, null) || ReferenceEquals(secondContentReference, null))
 				return false;
 
-			return firstContentReference.ID == secondContentReference.ID && firstContentReference.WorkID == secondContentReference.WorkID && firstContentReference.ProviderName == secondContentReference.ProviderName;
+			return firstContentReference.Equals(secondContentReference);
+		}
+
+		public static bool operator >(ContentReference firstContentReference, ContentReference secondContentReference)
+		{
+			ThrowArgumentNullExceptionIfAnyParameterIsNull(firstContentReference, secondContentReference);
+
+			return firstContentReference.CompareTo(secondContentReference) == 1;
 		}
 
 		public static bool operator !=(ContentReference firstContentReference, ContentReference secondContentReference)
 		{
 			return !(firstContentReference == secondContentReference);
+		}
+
+		public static bool operator <(ContentReference firstContentReference, ContentReference secondContentReference)
+		{
+			ThrowArgumentNullExceptionIfAnyParameterIsNull(firstContentReference, secondContentReference);
+
+			return firstContentReference.CompareTo(secondContentReference) == -1;
 		}
 
 		#endregion

@@ -20,23 +20,6 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				ShimDataFactory.StaticConstructor = () => { };
 				DataFactory dataFactory = new DataFactory();
 				Assert.AreEqual(dataFactory, new DataFactoryWrapper(dataFactory).DataFactory);
-
-				//ShimDataFactory.Constructor = delegate(DataFactory factory) {  };
-
-				////	=  = factory =>  shimDataFactory = new ShimDataFactory(new DataFactory())
-				////{
-				////	GetPagePageReference = pageLink => new PageData(pageLink)
-				////};
-
-				////Shime
-				////Assert.IsNull(ShimDataFactory.InstanceGet);
-
-				//ShimDataFactory.InstanceGet = () => shimDataFactory.Instance;
-				//Assert.IsNotNull(DataFactory.Instance);
-				//Assert.AreEqual(1, DataFactory.Instance.GetPage(new PageReference(1)).PageLink.ID);
-
-				////ShimDataFactory.StaticConstructor = () => { };
-				////Assert.IsNotNull(shimDataFactory.Instance);
 			}
 		}
 
