@@ -47,10 +47,102 @@
     <AssemblyOriginatorKeyFile>..\HansKindberg.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EPiServer">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.6.1.379.0.Fakes">
+      <HintPath>FakesAssemblies\EPiServer.6.1.379.0.Fakes.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.ApplicationModules">
+      <HintPath>..\packages\EPiServer.Framework.6.2.267.1\lib\EPiServer.ApplicationModules.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.BaseLibrary">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.BaseLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Blog">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Blog.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Configuration">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Data">
+      <HintPath>..\packages\EPiServer.Framework.6.2.267.1\lib\EPiServer.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Enterprise">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Enterprise.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Events">
+      <HintPath>..\packages\EPiServer.Framework.6.2.267.1\lib\EPiServer.Events.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Framework">
+      <HintPath>..\packages\EPiServer.Framework.6.2.267.1\lib\EPiServer.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.ImageLibrary">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.ImageLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Implementation">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Implementation.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Legacy4">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Legacy4.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Licensing">
+      <HintPath>..\packages\EPiServer.Licensing.6.2.267.1\lib\net20\EPiServer.Licensing.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.LinkAnalyzer">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.LinkAnalyzer.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Log.Analyzers">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Log.Analyzers.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Log.Core">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Log.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Lucene">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Lucene.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Scheduler">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Scheduler.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Scheduler.WKTL">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Scheduler.WKTL.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Shell">
+      <HintPath>..\packages\EPiServer.Framework.6.2.267.1\lib\EPiServer.Shell.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Web.WebControls">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Web.WebControls.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.WebDav">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.WebDav.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.WebParts">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.WebParts.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.WorkflowFoundation">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.WorkflowFoundation.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.XForms">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.XForms.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.XmlRpc">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.XmlRpc.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Web.Services3">
+      <HintPath>..\packages\Microsoft.Web.Services3.3.0.0.0\lib\net20\Microsoft.Web.Services3.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition">
+      <HintPath>..\packages\EPiServer.Framework.6.2.267.1\lib\System.ComponentModel.Composition.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -72,6 +164,8 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="CodeAnalysis\AssemblySuppressions.cs" />
+    <Compile Include="Core\PageReferenceWrapperTest.cs" />
+    <Compile Include="DataFactoryWrapperTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -83,9 +177,17 @@
     <None Include="..\HansKindberg.snk">
       <Link>HansKindberg.snk</Link>
     </None>
+    <Fakes Include="Fakes\EPiServer.fakes" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CodeAnalysis\AssemblyDictionary.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HansKindberg.EPiServer.Cms7.Abstractions\HansKindberg.EPiServer.Cms7.Abstractions.csproj">
+      <Project>{8018cf28-ad3b-44e6-ad7f-45b26c50d895}</Project>
+      <Name>HansKindberg.EPiServer.Cms7.Abstractions</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

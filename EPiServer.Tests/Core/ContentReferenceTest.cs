@@ -1,7 +1,6 @@
 ﻿using System;
 using EPiServer.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace EPiServer.Tests.Core
 {
@@ -19,8 +18,8 @@ namespace EPiServer.Tests.Core
 		[TestMethod]
 		public void CompareTo_IfTheIdsAreEqualAndTheInstanceProviderNameIsGreaterThanTheObjectParameterProviderName_ShouldReturnMinusOne()
 		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(0, int.MaxValue), _random.Next(0, int.MaxValue), "1");
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
+			ContentReference contentReferenceToCompareWith = new ContentReference(_random.Next(0, int.MaxValue), _random.Next(0, int.MaxValue), "1");
+			ContentReference contentReference = contentReferenceToCompareWith.Copy();
 			contentReference.ProviderName = "2";
 			Assert.AreEqual(1, 2.CompareTo(1));
 			Assert.AreEqual(1, string.Compare("2", "1", StringComparison.Ordinal));
@@ -30,8 +29,8 @@ namespace EPiServer.Tests.Core
 		[TestMethod]
 		public void CompareTo_IfTheIdsAreEqualAndTheInstanceProviderNameIsLessThanTheObjectParameterProviderName_ShouldReturnMinusOne()
 		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(0, int.MaxValue), _random.Next(0, int.MaxValue), "2");
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
+			ContentReference contentReferenceToCompareWith = new ContentReference(_random.Next(0, int.MaxValue), _random.Next(0, int.MaxValue), "2");
+			ContentReference contentReference = contentReferenceToCompareWith.Copy();
 			contentReference.ProviderName = "1";
 			Assert.AreEqual(-1, 1.CompareTo(2));
 			Assert.AreEqual(-1, string.Compare("1", "2", StringComparison.Ordinal));
@@ -41,8 +40,8 @@ namespace EPiServer.Tests.Core
 		[TestMethod]
 		public void CompareTo_IfTheIdsAreEqualAndTheInstanceWorkIdIsGreaterThanTheObjectParameterWorkId_ShouldReturnMinusOne()
 		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(0, int.MaxValue), _random.Next(0, int.MaxValue - 1), null);
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
+			ContentReference contentReferenceToCompareWith = new ContentReference(_random.Next(0, int.MaxValue), _random.Next(0, int.MaxValue - 1));
+			ContentReference contentReference = contentReferenceToCompareWith.Copy();
 			contentReference.WorkID = contentReference.WorkID + 1;
 			Assert.AreEqual(-1, contentReference.CompareTo(contentReferenceToCompareWith));
 		}
@@ -50,8 +49,8 @@ namespace EPiServer.Tests.Core
 		[TestMethod]
 		public void CompareTo_IfTheIdsAreEqualAndTheInstanceWorkIdIsLessThanTheObjectParameterWorkId_ShouldReturnMinusOne()
 		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(0, int.MaxValue), _random.Next(1, int.MaxValue), null);
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
+			ContentReference contentReferenceToCompareWith = new ContentReference(_random.Next(0, int.MaxValue), _random.Next(1, int.MaxValue));
+			ContentReference contentReference = contentReferenceToCompareWith.Copy();
 			contentReference.WorkID = contentReference.WorkID - 1;
 			Assert.AreEqual(-1, contentReference.CompareTo(contentReferenceToCompareWith));
 		}
@@ -59,8 +58,8 @@ namespace EPiServer.Tests.Core
 		[TestMethod]
 		public void CompareTo_IfTheInstanceIdIsGreaterThanTheObjectParameterId_ShouldReturnOne()
 		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(0, int.MaxValue - 1), 0, null);
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
+			ContentReference contentReferenceToCompareWith = new ContentReference(_random.Next(0, int.MaxValue - 1));
+			ContentReference contentReference = contentReferenceToCompareWith.Copy();
 			contentReference.ID = contentReference.ID + 1;
 			Assert.AreEqual(1, contentReference.CompareTo(contentReferenceToCompareWith));
 		}
@@ -68,8 +67,8 @@ namespace EPiServer.Tests.Core
 		[TestMethod]
 		public void CompareTo_IfTheInstanceIdIsLessThanTheObjectParameterId_ShouldReturnMinusOne()
 		{
-			ContentReference contentReferenceToCompareWith = CreateContentReference(_random.Next(1, int.MaxValue), 0, null);
-			ContentReference contentReference = CopyContentReference(contentReferenceToCompareWith);
+			ContentReference contentReferenceToCompareWith = new ContentReference(_random.Next(1, int.MaxValue));
+			ContentReference contentReference = contentReferenceToCompareWith.Copy();
 			contentReference.ID = contentReference.ID - 1;
 			Assert.AreEqual(-1, contentReference.CompareTo(contentReferenceToCompareWith));
 		}
@@ -79,7 +78,7 @@ namespace EPiServer.Tests.Core
 		public void CompareTo_IfTheObjectParameterIsNotOfTypeContentReference_ShouldThrowAnArgumentException()
 		{
 			// ReSharper disable ReturnValueOfPureMethodIsNotUsed
-			new Mock<ContentReference> {CallBase = true}.Object.CompareTo(new object());
+			new ContentReference().CompareTo(new object());
 			// ReSharper restore ReturnValueOfPureMethodIsNotUsed
 		}
 
@@ -88,33 +87,20 @@ namespace EPiServer.Tests.Core
 		public void CompareTo_IfTheObjectParameterIsNull_ShouldThrowAnArgumentException()
 		{
 			// ReSharper disable ReturnValueOfPureMethodIsNotUsed
-			new Mock<ContentReference> {CallBase = true}.Object.CompareTo(null);
+			new ContentReference().CompareTo(null);
 			// ReSharper restore ReturnValueOfPureMethodIsNotUsed
 		}
 
 		[TestMethod]
 		public void CompareTo_IfTheObjectParameterIsTheSameAsTheInstance_ShouldReturnZero()
 		{
-			ContentReference contentReference = new Mock<ContentReference> {CallBase = true}.Object;
+			ContentReference contentReference = new ContentReference();
 			Assert.AreEqual(0, contentReference.CompareTo(contentReference));
 		}
 
-		private static ContentReference CopyContentReference(ContentReference contentReferenceToCopy)
+		private static ContentReference CreateContentReference(int contentId, int versionId, string providerName)
 		{
-			Mock<ContentReference> contentReferenceMock = new Mock<ContentReference> {CallBase = true};
-			contentReferenceMock.SetupProperty(contentReference => contentReference.ID, contentReferenceToCopy.ID);
-			contentReferenceMock.SetupProperty(contentReference => contentReference.WorkID, contentReferenceToCopy.WorkID);
-			contentReferenceMock.SetupProperty(contentReference => contentReference.ProviderName, contentReferenceToCopy.ProviderName);
-			return contentReferenceMock.Object;
-		}
-
-		private static ContentReference CreateContentReference(int id, int workId, string providerName)
-		{
-			Mock<ContentReference> contentReferenceMock = new Mock<ContentReference> {CallBase = true};
-			contentReferenceMock.SetupProperty(contentReference => contentReference.ID, id);
-			contentReferenceMock.SetupProperty(contentReference => contentReference.WorkID, workId);
-			contentReferenceMock.SetupProperty(contentReference => contentReference.ProviderName, providerName);
-			return contentReferenceMock.Object;
+			return new ContentReference(contentId, versionId, providerName);
 		}
 
 		private static ContentReference CreateRandomContentReference()
@@ -146,14 +132,14 @@ namespace EPiServer.Tests.Core
 		public void Equals_IfTheIdAndTheWorkIdAndTheProviderNameAreEqual_ShouldReturnTrue()
 		{
 			ContentReference contentReference = CreateRandomContentReference();
-			Assert.IsTrue(contentReference.Equals(CopyContentReference(contentReference)));
+			Assert.IsTrue(contentReference.Equals(contentReference.Copy()));
 		}
 
 		[TestMethod]
 		public void Equals_IfTheIdIsNotEqual_ShouldReturnFalse()
 		{
 			ContentReference contentReference = CreateRandomContentReference();
-			ContentReference contentReferenceCopy = CopyContentReference(contentReference);
+			ContentReference contentReferenceCopy = contentReference.Copy();
 			contentReferenceCopy.ID = contentReferenceCopy.ID + 1;
 			Assert.IsFalse(contentReference.Equals(contentReferenceCopy));
 		}
@@ -161,19 +147,19 @@ namespace EPiServer.Tests.Core
 		[TestMethod]
 		public void Equals_IfTheObjectParameterIsNotOfTypeContentReference_ShouldReturnFalse()
 		{
-			Assert.IsFalse(new Mock<ContentReference> {CallBase = true}.Object.Equals(new object()));
+			Assert.IsFalse(new ContentReference().Equals(new object()));
 		}
 
 		[TestMethod]
 		public void Equals_IfTheObjectParameterIsNull_ShouldReturnFalse()
 		{
-			Assert.IsFalse(new Mock<ContentReference> {CallBase = true}.Object.Equals(null));
+			Assert.IsFalse(new ContentReference().Equals(null));
 		}
 
 		[TestMethod]
 		public void Equals_IfTheObjectParameterIsTheSameInstance_ShouldReturnTrue()
 		{
-			ContentReference contentReference = new Mock<ContentReference> {CallBase = true}.Object;
+			ContentReference contentReference = new ContentReference();
 			// ReSharper disable EqualExpressionComparison
 			Assert.IsTrue(contentReference.Equals(contentReference));
 			// ReSharper restore EqualExpressionComparison
@@ -183,10 +169,10 @@ namespace EPiServer.Tests.Core
 		public void Equals_IfTheProviderNameIsNotEqual_ShouldReturnFalse()
 		{
 			ContentReference contentReference = CreateRandomContentReference();
-			ContentReference contentReferenceCopy = CopyContentReference(contentReference);
+			ContentReference contentReferenceCopy = contentReference.Copy();
 
 			if(contentReferenceCopy.ProviderName == null)
-				contentReferenceCopy.ProviderName = string.Empty;
+				contentReferenceCopy.ProviderName = "string.Emtpy"; // Setting it to an empty string will set it to null internally.
 			else if(contentReferenceCopy.ProviderName.Length == 0)
 				contentReferenceCopy.ProviderName = " ";
 			else if(contentReferenceCopy.ProviderName == " ")
@@ -201,7 +187,7 @@ namespace EPiServer.Tests.Core
 		public void Equals_IfTheWorkIdIsNotEqual_ShouldReturnFalse()
 		{
 			ContentReference contentReference = CreateRandomContentReference();
-			ContentReference contentReferenceCopy = CopyContentReference(contentReference);
+			ContentReference contentReferenceCopy = contentReference.Copy();
 			contentReferenceCopy.WorkID = contentReferenceCopy.WorkID + 1;
 			Assert.IsFalse(contentReference.Equals(contentReferenceCopy));
 		}
@@ -223,15 +209,17 @@ namespace EPiServer.Tests.Core
 		}
 
 		[TestMethod]
-		public void ToString_IfTheIdIsZeroAndTheWorkIdIsMinusOne_ShouldReturnAHyphen()
+		public void ProviderName_Set_IfTheValueIsAWhiteSpace_ShouldSetItToAWhiteSpace()
 		{
-			Assert.AreEqual("-", CreateContentReference(0, -1, "Test").ToString());
+			ContentReference contentReference = new ContentReference {ProviderName = " "};
+			Assert.AreEqual(" ", contentReference.ProviderName);
 		}
 
 		[TestMethod]
-		public void ToString_IfTheIdIsZeroAndTheWorkIdIsNotMinusOne_ShouldReturnAnEmptyString()
+		public void ProviderName_Set_IfTheValueIsAnEmptyString_ShouldSetItToNull()
 		{
-			Assert.AreEqual(string.Empty, CreateContentReference(0, 0, "Test").ToString());
+			ContentReference contentReference = new ContentReference {ProviderName = string.Empty};
+			Assert.IsNull(contentReference.ProviderName);
 		}
 
 		#endregion

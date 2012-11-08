@@ -120,9 +120,6 @@
     <Reference Include="EPiServer.XmlRpc">
       <HintPath>..\packages\EPiServer.CMS.Core.7.0.586.1\lib\net40\EPiServer.XmlRpc.dll</HintPath>
     </Reference>
-    <Reference Include="Moq">
-      <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core">
@@ -150,7 +147,7 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="CodeAnalysis\AssemblySuppressions.cs" />
-    <Compile Include="Core\ContentReferenceConverterTest.cs" />
+    <Compile Include="Core\ContentReferenceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

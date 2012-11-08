@@ -126,7 +126,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\CodeAnalysis\SolutionSuppressions.cs">
@@ -136,13 +135,14 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="CodeAnalysis\AssemblySuppressions.cs" />
-    <Compile Include="Core\ContentData.cs" />
     <Compile Include="Core\ContentReference.cs" />
-    <Compile Include="Core\ContentReferenceConverter.cs" />
     <Compile Include="Core\IContent.cs" />
     <Compile Include="Core\IContentData.cs" />
+    <Compile Include="Core\IContentSource.cs" />
     <Compile Include="Core\IModifiedTrackable.cs" />
-    <Compile Include="Data\Validator.cs" />
+    <Compile Include="Core\PageReferenceWrapper.cs" />
+    <Compile Include="DataFactoryWrapper.cs" />
+    <Compile Include="Data\Entity\IReadOnly.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +159,7 @@
   <ItemGroup>
     <CodeAnalysisDictionary Include="CodeAnalysis\AssemblyDictionary.xml" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"$(SolutionDir).nuget\NuGet.exe" pack "$(ProjectPath)" -Properties Configuration=$(ConfigurationName)</PostBuildEvent>
