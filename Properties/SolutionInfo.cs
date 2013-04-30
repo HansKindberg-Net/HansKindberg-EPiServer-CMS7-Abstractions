@@ -66,10 +66,10 @@ internal static class SolutionInfo
 	internal const string AssemblyVersion = _assemblyBaseVersion + "." + _revision;
 	private const string _assemblyBaseVersion = _majorVersion + "." + _minorVersion + "." + _buildNumber;
 	private const string _buildNumber = "0";
-	private const string _fileVersionRevision = "1";
+	private const string _fileVersionRevision = "0";
 	private const string _majorVersion = "6";
 	private const string _minorVersion = "1";
-	private const string _revision = "1";
+	private const string _revision = "0";
 
 	#endregion
 }

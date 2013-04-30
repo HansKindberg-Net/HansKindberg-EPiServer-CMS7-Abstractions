@@ -124,6 +124,7 @@
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
@@ -142,7 +143,10 @@
     <Compile Include="Core\IContent.cs" />
     <Compile Include="Core\IContentData.cs" />
     <Compile Include="Core\IModifiedTrackable.cs" />
+    <Compile Include="DataAbstraction\ILanguageBranchRepository.cs" />
     <Compile Include="Data\Validator.cs" />
+    <Compile Include="IContentLoader.cs" />
+    <Compile Include="IContentRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -154,6 +158,7 @@
     <None Include="..\HansKindberg.snk">
       <Link>HansKindberg.snk</Link>
     </None>
+    <None Include="HansKindberg.EPiServer.Cms7.Abstractions.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
