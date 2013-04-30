@@ -81,6 +81,7 @@
     <Compile Include="Core\ContentReferenceConverter.cs" />
     <Compile Include="Core\IContent.cs" />
     <Compile Include="Core\IContentData.cs" />
+    <Compile Include="Core\IContentSource.cs" />
     <Compile Include="Core\IModifiedTrackable.cs" />
     <Compile Include="DataAbstraction\ILanguageBranchRepository.cs" />
     <Compile Include="Data\Validator.cs" />
