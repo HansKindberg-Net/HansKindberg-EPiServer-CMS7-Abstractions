@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EPiServer.Core
 {
@@ -12,7 +13,9 @@ namespace EPiServer.Core
 
 		#region Methods
 
+		[SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "Get")]
 		T Get<T>(ContentReference contentLink) where T : IContentData;
+
 		IEnumerable<T> GetChildren<T>(ContentReference contentLink) where T : IContentData;
 
 		#endregion
