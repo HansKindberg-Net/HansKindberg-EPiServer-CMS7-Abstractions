@@ -110,7 +110,7 @@ namespace EPiServer.Core
 
 		public bool IsExternalProvider
 		{
-			get { return !string.IsNullOrEmpty(this.ProviderName); }
+			get { return this._pageReference.IsRemote(); }
 		}
 
 		[XmlIgnore]
