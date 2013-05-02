@@ -8,9 +8,9 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.Core.Extensions // ReSharper 
 	{
 		#region Methods
 
-		public static ContentReference ToContentReference(this PageReference pageReference)
+		public static ContentReference ToContentReference(this PageReference pageLink)
 		{
-			return (PageReferenceWrapper) pageReference;
+			return pageLink == null ? null : new ContentReference(pageLink);
 		}
 
 		#endregion

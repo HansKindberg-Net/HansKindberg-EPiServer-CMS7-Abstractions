@@ -14,6 +14,7 @@ namespace EPiServer.Core
 		int ContentTypeID { get; set; }
 
 		// ReSharper restore InconsistentNaming
+		bool IsDeleted { get; set; }
 		string Name { get; set; }
 		ContentReference ParentLink { get; set; }
 

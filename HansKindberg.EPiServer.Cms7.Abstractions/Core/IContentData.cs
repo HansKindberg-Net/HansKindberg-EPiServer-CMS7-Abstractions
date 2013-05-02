@@ -4,7 +4,6 @@
 	{
 		#region Properties
 
-		bool IsNull { get; }
 		PropertyDataCollection Properties { get; }
 
 		#endregion

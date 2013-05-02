@@ -20,4 +20,13 @@ namespace EPiServer.Core
 
 		#endregion
 	}
+
+	public interface IContentSource<out T> : IContentSource where T : IContent
+	{
+		#region Properties
+
+		new T CurrentContent { get; }
+
+		#endregion
+	}
 }
