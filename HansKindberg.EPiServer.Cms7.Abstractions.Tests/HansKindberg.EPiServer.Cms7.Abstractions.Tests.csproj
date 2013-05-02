@@ -50,62 +50,8 @@
     <Reference Include="EPiServer">
       <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.dll</HintPath>
     </Reference>
-    <Reference Include="EPiServer.BaseLibrary">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.BaseLibrary.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.Blog">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Blog.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.Configuration">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Configuration.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.Enterprise">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Enterprise.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.ImageLibrary">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.ImageLibrary.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.Implementation">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Implementation.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.Legacy4">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Legacy4.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.LinkAnalyzer">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.LinkAnalyzer.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.Log.Analyzers">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Log.Analyzers.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.Log.Core">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Log.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.Lucene">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Lucene.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.Scheduler">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Scheduler.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.Scheduler.WKTL">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Scheduler.WKTL.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.Web.WebControls">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.Web.WebControls.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.WebDav">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.WebDav.dll</HintPath>
-    </Reference>
     <Reference Include="EPiServer.WebParts">
       <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.WebParts.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.WorkflowFoundation">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.WorkflowFoundation.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.XForms">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.XForms.dll</HintPath>
-    </Reference>
-    <Reference Include="EPiServer.XmlRpc">
-      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.XmlRpc.dll</HintPath>
     </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET35\Moq.dll</HintPath>
@@ -162,6 +108,9 @@
       <Project>{8018cf28-ad3b-44e6-ad7f-45b26c50d895}</Project>
       <Name>HansKindberg.EPiServer.Cms7.Abstractions</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
