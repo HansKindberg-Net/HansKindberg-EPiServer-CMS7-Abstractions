@@ -268,24 +268,20 @@ namespace EPiServer.Core
 
 		#region Operators
 
-		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "x")]
-		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "y")]
-		public static bool operator ==(ContentReference x, ContentReference y)
+		public static bool operator ==(ContentReference firstContentReference, ContentReference secondContentReference)
 		{
-			if(x == null)
-				return (y == null);
+			if(ReferenceEquals(firstContentReference, secondContentReference))
+				return true;
 
-			return x.Equals(y);
+			if(ReferenceEquals(firstContentReference, null) || ReferenceEquals(secondContentReference, null))
+				return false;
+
+			return firstContentReference.Equals(secondContentReference);
 		}
 
-		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "x")]
-		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "y")]
-		public static bool operator !=(ContentReference x, ContentReference y)
+		public static bool operator !=(ContentReference firstContentReference, ContentReference secondContentReference)
 		{
-			if(x == null)
-				return (y != null);
-
-			return !x.Equals(y);
+			return !(firstContentReference == secondContentReference);
 		}
 
 		#endregion
