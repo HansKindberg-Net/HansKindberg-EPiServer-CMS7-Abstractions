@@ -38,7 +38,7 @@ namespace EPiServer.Core
 
 		protected internal ContentReference(PageReference pageReference)
 		{
-			if (pageReference == null)
+			if(pageReference == null)
 				throw new ArgumentNullException("pageReference");
 
 			this._pageReference = pageReference;
@@ -172,13 +172,13 @@ namespace EPiServer.Core
 		{
 			ContentReference contentReference = x as ContentReference;
 
-			if (contentReference == null)
+			if(contentReference == null)
 				throw new ArgumentException("Object is not a ContentReference");
 
-			if (this == contentReference)
+			if(this == contentReference)
 				return 0;
 
-			if (this.ID > contentReference.ID)
+			if(this.ID > contentReference.ID)
 				return 1;
 
 			return -1;
@@ -193,7 +193,7 @@ namespace EPiServer.Core
 
 		public ContentReference Copy()
 		{
-			return (ContentReference)this.MemberwiseClone();
+			return (ContentReference) this.MemberwiseClone();
 		}
 
 		public ContentReference CreateReferenceWithoutVersion()
@@ -235,7 +235,7 @@ namespace EPiServer.Core
 		{
 			ContentReference contentReference;
 
-			if (!TryParse(s, out contentReference))
+			if(!TryParse(s, out contentReference))
 				throw new EPiServerException("ContentReference: Input string was not in a correct format.");
 
 			return contentReference;
@@ -272,7 +272,7 @@ namespace EPiServer.Core
 		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "y")]
 		public static bool operator ==(ContentReference x, ContentReference y)
 		{
-			if (x == null)
+			if(x == null)
 				return (y == null);
 
 			return x.Equals(y);
@@ -282,7 +282,7 @@ namespace EPiServer.Core
 		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "y")]
 		public static bool operator !=(ContentReference x, ContentReference y)
 		{
-			if (x == null)
+			if(x == null)
 				return (y != null);
 
 			return !x.Equals(y);

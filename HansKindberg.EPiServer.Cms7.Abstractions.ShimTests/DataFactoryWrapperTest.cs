@@ -15,7 +15,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 		[TestMethod]
 		public void Constructor_IfTheDataFactoryParameterIsNotNull_ShouldSetTheDataFactoryProperty()
 		{
-			using(ShimsContext.Create())
+			using (ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
 				DataFactory dataFactory = new DataFactory();

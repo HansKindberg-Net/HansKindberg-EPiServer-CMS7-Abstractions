@@ -17,7 +17,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 
 		public DataFactoryWrapper(DataFactory dataFactory)
 		{
-			if(dataFactory == null)
+			if (dataFactory == null)
 				throw new ArgumentNullException("dataFactory");
 
 			this._dataFactory = dataFactory;
