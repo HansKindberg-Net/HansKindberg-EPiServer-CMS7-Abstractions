@@ -1,98 +1,111 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Xml.Serialization;
+using HansKindberg.EPiServer.Cms7.Abstractions.Core.Extensions;
 
 namespace EPiServer.Core
 {
+	[Serializable]
 	[SuppressMessage("Microsoft.Design", "CA1036:OverrideMethodsOnComparableTypes")]
-	[Serializable, TypeConverter(typeof(ContentReferenceConverter<ContentReference>))]
 	public class ContentReference : IComparable, IReadOnly
 	{
+		// ReSharper disable InconsistentNaming
+
 		#region Fields
 
-		[SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")] public static readonly ContentReference EmptyReference = new ContentReference {IsReadOnly = true};
-		[SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")] public static readonly ContentReference SelfReference = new ContentReference(0, -1, null) {IsReadOnly = true};
-		private int _contentId;
-		private readonly bool _getPublishedOrLatest;
-		private bool _isReadOnly;
-		private string _providerName;
-		private int _versionId;
+		private static readonly ContentReference _emptyReference = new ContentReference();
+		private readonly PageReference _pageReference;
+		private static PageReference _rootPage;
+		private static readonly ContentReference _selfReference = new ContentReference(0, -1, null);
+		private static PageReference _startPage;
+		private static PageReference _wasteBasket;
 
 		#endregion
 
 		#region Constructors
 
-		public ContentReference() {}
-
-		public ContentReference(int contentId)
+		[SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
+		static ContentReference()
 		{
-			this._contentId = contentId;
+			_emptyReference.MakeReadOnly();
+			_selfReference.MakeReadOnly();
 		}
 
-		[SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+		public ContentReference()
+		{
+			this._pageReference = new PageReference();
+		}
+
+		protected internal ContentReference(PageReference pageReference)
+		{
+			if(pageReference == null)
+				throw new ArgumentNullException("pageReference");
+
+			this._pageReference = pageReference;
+		}
+
+		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
+		public ContentReference(int contentID)
+		{
+			this._pageReference = new PageReference(contentID);
+		}
+
 		public ContentReference(string complexReference)
 		{
-			if(string.IsNullOrEmpty(complexReference))
-				throw new EPiServerException("Content-reference string cannot be null/empty");
-
-			// ReSharper disable DoNotCallOverridableMethodsInConstructor
-			ContentReference reference = this.ParseReference(complexReference);
-			// ReSharper restore DoNotCallOverridableMethodsInConstructor
-			if(reference == null)
-				throw new EPiServerException("Content-reference: Input string was not in a correct format.");
-
-			this._contentId = reference._contentId;
-			this._versionId = reference._versionId;
-			this._providerName = reference._providerName;
+			this._pageReference = new PageReference(complexReference);
 		}
 
-		public ContentReference(int contentId, bool getPublishedOrLatest) : this(contentId)
+		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
+		public ContentReference(int contentID, bool getPublishedOrLatest)
 		{
-			this._getPublishedOrLatest = getPublishedOrLatest;
+			this._pageReference = new PageReference(contentID, getPublishedOrLatest);
 		}
 
-		public ContentReference(int contentId, int versionId) : this(contentId)
+		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
+		public ContentReference(int contentID, int versionID)
 		{
-			this._versionId = versionId;
+			this._pageReference = new PageReference(contentID, versionID);
 		}
 
-		public ContentReference(int contentId, string providerName) : this(contentId)
+		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
+		public ContentReference(int contentID, string providerName)
 		{
-			this.ProviderName = providerName;
+			this._pageReference = new PageReference(contentID, providerName);
 		}
 
-		public ContentReference(int contentId, int versionId, string providerName) : this(contentId, versionId)
+		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
+		public ContentReference(int contentID, int versionID, string providerName)
 		{
-			this.ProviderName = providerName;
+			this._pageReference = new PageReference(contentID, versionID, providerName);
 		}
 
-		public ContentReference(int contentId, int versionId, string providerName, bool getPublishedOrLatest) : this(contentId, versionId, providerName)
+		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
+		public ContentReference(int contentID, int versionID, string providerName, bool getPublishedOrLatest)
 		{
-			this._getPublishedOrLatest = getPublishedOrLatest;
+			this._pageReference = new PageReference(contentID, versionID, providerName, getPublishedOrLatest);
 		}
 
 		#endregion
 
 		#region Properties
 
+		public static ContentReference EmptyReference
+		{
+			get { return _emptyReference; }
+		}
+
 		public bool GetPublishedOrLatest
 		{
-			get { return this._getPublishedOrLatest; }
+			get { return this._pageReference.IsAnyVersion(); }
 		}
 
 		public static ContentReference GlobalBlockFolder { get; set; }
-		// ReSharper disable InconsistentNaming
+
 		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
-		public int ID // ReSharper restore InconsistentNaming
+		public int ID
 		{
-			get { return this._contentId; }
-			set
-			{
-				this.ThrowIfReadOnly();
-				this._contentId = value;
-			}
+			get { return this._pageReference.ID; }
+			set { this._pageReference.ID = value; }
 		}
 
 		public bool IsExternalProvider
@@ -103,40 +116,61 @@ namespace EPiServer.Core
 		[XmlIgnore]
 		public bool IsReadOnly
 		{
-			get { return this._isReadOnly; }
-			protected set { this._isReadOnly = value; }
+			get { return this._pageReference.IsReadOnly; }
+		}
+
+		protected internal PageReference PageReference
+		{
+			get { return this._pageReference; }
 		}
 
 		public string ProviderName
 		{
-			get { return this._providerName; }
-			set
-			{
-				this.ThrowIfReadOnly();
-				this._providerName = string.IsNullOrEmpty(value) ? null : value;
-			}
+			get { return this._pageReference.RemoteSite; }
+			set { this._pageReference.RemoteSite = value; }
+		}
+
+		public static PageReference RootPage
+		{
+			get { return _rootPage ?? (_rootPage = PageReference.RootPage); }
+			set { _rootPage = value; }
+		}
+
+		public static ContentReference SelfReference
+		{
+			get { return _selfReference; }
 		}
 
 		public static ContentReference SiteBlockFolder { get; set; }
-		// ReSharper disable InconsistentNaming
-		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
-		public int WorkID // ReSharper restore InconsistentNaming
+
+		public static PageReference StartPage
 		{
-			get { return this._versionId; }
-			set
-			{
-				this.ThrowIfReadOnly();
-				this._versionId = value;
-			}
+			get { return _startPage ?? (_startPage = PageReference.StartPage); }
+			set { _startPage = value; }
+		}
+
+		[SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "WasteBasket")]
+		public static PageReference WasteBasket
+		{
+			get { return _wasteBasket ?? (_wasteBasket = PageReference.WasteBasket); }
+			set { _wasteBasket = value; }
+		}
+
+		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
+		public int WorkID
+		{
+			get { return this._pageReference.WorkID; }
+			set { this._pageReference.WorkID = value; }
 		}
 
 		#endregion
 
 		#region Methods
 
-		public virtual int CompareTo(object obj)
+		[SuppressMessage("Microsoft.Naming", "CA1725:ParameterNamesShouldMatchBaseDeclaration", MessageId = "0#")]
+		public virtual int CompareTo(object x)
 		{
-			ContentReference contentReference = obj as ContentReference;
+			ContentReference contentReference = x as ContentReference;
 
 			if(contentReference == null)
 				throw new ArgumentException("Object is not a ContentReference");
@@ -150,14 +184,11 @@ namespace EPiServer.Core
 			return -1;
 		}
 
-		// ReSharper disable InconsistentNaming
+		[SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0")]
 		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
-		public virtual bool CompareToIgnoreWorkID(ContentReference contentReference) // ReSharper restore InconsistentNaming
+		public virtual bool CompareToIgnoreWorkID(ContentReference contentReference)
 		{
-			if(contentReference == null)
-				throw new ArgumentNullException("contentReference");
-
-			return this._contentId == contentReference.ID && this._providerName == contentReference.ProviderName;
+			return this._pageReference.CompareToIgnoreWorkID(contentReference._pageReference);
 		}
 
 		public ContentReference Copy()
@@ -167,151 +198,98 @@ namespace EPiServer.Core
 
 		public ContentReference CreateReferenceWithoutVersion()
 		{
-			ContentReference reference = this.CreateWritableClone() as ContentReference;
-			// ReSharper disable PossibleNullReferenceException
-			reference.WorkID = 0;
-			// ReSharper restore PossibleNullReferenceException
-			return reference;
+			return new ContentReference(this._pageReference.CreateReferenceToPublishedPage());
 		}
 
 		public virtual object CreateWritableClone()
 		{
-			ContentReference reference = base.MemberwiseClone() as ContentReference;
-			// ReSharper disable PossibleNullReferenceException
-			reference.IsReadOnly = false;
-			// ReSharper restore PossibleNullReferenceException
-			return reference;
+			return new ContentReference(this._pageReference.CreateWritableClone());
 		}
 
-		public override bool Equals(object obj)
+		[SuppressMessage("Microsoft.Naming", "CA1725:ParameterNamesShouldMatchBaseDeclaration", MessageId = "0#")]
+		public override bool Equals(object o)
 		{
-			ContentReference reference = obj as ContentReference;
+			ContentReference contentReference = o as ContentReference;
 
-			if(reference == null)
-				return false;
-
-			return this._contentId == reference.ID && this._versionId == reference.WorkID && this._providerName == reference.ProviderName;
+			return contentReference != null && this._pageReference.Equals(contentReference._pageReference);
 		}
 
 		public override int GetHashCode()
 		{
-			// ReSharper disable NonReadonlyFieldInGetHashCode
-			return this._contentId + this._versionId + (this._providerName == null ? 0 : this._providerName.GetHashCode());
-			// ReSharper restore NonReadonlyFieldInGetHashCode
+			return this._pageReference.GetHashCode();
 		}
 
 		public static bool IsNullOrEmpty(ContentReference contentLink)
 		{
-			return contentLink == null || (contentLink.ID == 0 && contentLink.WorkID == 0 && contentLink.ProviderName == null);
+			return contentLink == null || PageReference.IsNullOrEmpty(contentLink._pageReference);
 		}
 
 		public virtual void MakeReadOnly()
 		{
-			this._isReadOnly = true;
+			this._pageReference.MakeReadOnly();
 		}
 
-		public static ContentReference Parse(string value)
+		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "s")]
+		[SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ContentReference")]
+		public static ContentReference Parse(string s)
 		{
-			ContentReference reference;
+			ContentReference contentReference;
 
-			if(!TryParse(value, out reference))
-				throw new EPiServerException("Content-reference: Input string was not in a correct format.");
+			if(!TryParse(s, out contentReference))
+				throw new EPiServerException("ContentReference: Input string was not in a correct format.");
 
-			return reference;
+			return contentReference;
 		}
 
-		[SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
 		public virtual ContentReference ParseReference(string complexReference)
 		{
-			ContentReference reference;
-			return TryParse(complexReference, out reference) ? reference : null;
-		}
+			ContentReference contentReference;
 
-		protected void ThrowIfReadOnly()
-		{
-			HansKindberg.EPiServer.Cms7.Abstractions.Data.Validator.ValidateNotReadOnly(this);
+			return TryParse(complexReference, out contentReference) ? contentReference : null;
 		}
 
 		public override string ToString()
 		{
-			if(this._contentId == 0)
-				return this._versionId == -1 ? "-" : string.Empty;
-
-			string contentReferenceString = this._contentId.ToString(CultureInfo.InvariantCulture);
-
-			if(this._versionId != 0)
-				contentReferenceString = contentReferenceString + "_" + this._versionId.ToString(CultureInfo.InvariantCulture);
-
-			if(this._providerName == null)
-				return contentReferenceString;
-
-			if(this._versionId == 0)
-				return contentReferenceString + "__" + this._providerName;
-
-			return contentReferenceString + "_" + this._providerName;
+			return this._pageReference.ToString();
 		}
 
 		public static bool TryParse(string complexReference, out ContentReference result)
 		{
-			int id;
-			result = EmptyReference;
+			PageReference pageReference;
 
-			if(string.IsNullOrEmpty(complexReference))
-				return complexReference != null;
+			bool tryParse = PageReference.TryParse(complexReference, out pageReference);
 
-			if(complexReference == "-")
-			{
-				result = SelfReference;
-				return true;
-			}
+			result = pageReference.ToContentReference();
 
-			string[] stringArray = complexReference.Split(new[] {'_'});
-			if(stringArray.Length > 3)
-				return false;
-
-			if(!int.TryParse(stringArray[0], out id))
-				return false;
-
-			if(stringArray.Length == 1)
-			{
-				result = new ContentReference(id);
-				return true;
-			}
-
-			int workId = 0;
-			if(stringArray[1].Length > 0 && !int.TryParse(stringArray[1], out workId))
-				return false;
-
-			if(stringArray.Length == 3)
-			{
-				result = new ContentReference(id, workId, stringArray[2]);
-				return true;
-			}
-
-			result = new ContentReference(id, workId);
-			return true;
+			return tryParse;
 		}
 
 		#endregion
 
-		#region Other members
+		#region Operators
 
-		public static bool operator ==(ContentReference firstContentReference, ContentReference secondContentReference)
+		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "x")]
+		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "y")]
+		public static bool operator ==(ContentReference x, ContentReference y)
 		{
-			if(firstContentReference == null)
-				return secondContentReference == null;
+			if(x == null)
+				return (y == null);
 
-			return firstContentReference.Equals(secondContentReference);
+			return x.Equals(y);
 		}
 
-		public static bool operator !=(ContentReference firstContentReference, ContentReference secondContentReference)
+		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "x")]
+		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "y")]
+		public static bool operator !=(ContentReference x, ContentReference y)
 		{
-			if(firstContentReference == null)
-				return secondContentReference != null;
+			if(x == null)
+				return (y != null);
 
-			return !firstContentReference.Equals(secondContentReference);
+			return !x.Equals(y);
 		}
 
 		#endregion
+
+		// ReSharper restore InconsistentNaming
 	}
 }

@@ -47,10 +47,25 @@
     <AssemblyOriginatorKeyFile>..\HansKindberg.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EPiServer">
+      <HintPath>..\packages\EPiServer.CMS.Core.6.1.379.0\lib\EPiServer.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.6.1.379.0.Fakes, Version=6.1.379.0, Culture=neutral, PublicKeyToken=0ae41878053f6703, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>FakesAssemblies\EPiServer.6.1.379.0.Fakes.dll</HintPath>
+    </Reference>
+    <Reference Include="EPiServer.Licensing">
+      <HintPath>..\packages\EPiServer.Licensing.6.2.267.1\lib\net20\EPiServer.Licensing.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -72,6 +87,7 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="CodeAnalysis\AssemblySuppressions.cs" />
+    <Compile Include="DataFactoryWrapperTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -83,9 +99,20 @@
     <None Include="..\HansKindberg.snk">
       <Link>HansKindberg.snk</Link>
     </None>
+    <Content Include="FakesAssemblies\EPiServer.6.1.379.0.Fakes.dll" />
+    <Content Include="FakesAssemblies\EPiServer.6.1.379.0.Fakes.xml" />
+    <Content Include="Fakes\EPiServer.fakes.txt" />
+    <None Include="FakesAssemblies\EPiServer.6.1.379.0.Fakes.fakesconfig" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CodeAnalysis\AssemblyDictionary.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HansKindberg.EPiServer.Cms7.Abstractions\HansKindberg.EPiServer.Cms7.Abstractions.csproj">
+      <Project>{8018cf28-ad3b-44e6-ad7f-45b26c50d895}</Project>
+      <Name>HansKindberg.EPiServer.Cms7.Abstractions</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
