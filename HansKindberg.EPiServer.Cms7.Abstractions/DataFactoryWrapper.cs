@@ -21,7 +21,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 
 		public DataFactoryWrapper(DataFactory dataFactory)
 		{
-			if (dataFactory == null)
+			if(dataFactory == null)
 				throw new ArgumentNullException("dataFactory");
 
 			this._dataFactory = dataFactory;
@@ -38,9 +38,32 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 
 		#endregion
 
+		#region Methods
 
+		public virtual ContentReference Copy(ContentReference source, ContentReference destination, AccessLevel requiredSourceAccess, AccessLevel requiredDestinationAccess, bool publishOnDestination)
+		{
+			throw new NotImplementedException();
+		}
 
+		public virtual T CreateLanguageBranch<T>(ContentReference contentLink, ILanguageSelector languageSelector, AccessLevel access) where T : IContentData
+		{
+			throw new NotImplementedException();
+		}
 
+		public virtual void Delete(ContentReference contentLink, bool forceDelete, AccessLevel access)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void DeleteChildren(ContentReference contentLink, bool forceDelete, AccessLevel access)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void DeleteLanguageBranch(ContentReference contentLink, string languageBranch, AccessLevel access)
+		{
+			throw new NotImplementedException();
+		}
 
 		public virtual T Get<T>(ContentReference contentLink) where T : IContentData
 		{
@@ -82,41 +105,6 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 			throw new NotImplementedException();
 		}
 
-		public virtual IEnumerable<ContentReference> GetDescendents(ContentReference contentLink)
-		{
-			throw new NotImplementedException();
-		}
-
-		public virtual IEnumerable<IContent> GetItems(IEnumerable<ContentReference> contentLinks, ILanguageSelector selector)
-		{
-			throw new NotImplementedException();
-		}
-
-		public virtual ContentReference Copy(ContentReference source, ContentReference destination, AccessLevel requiredSourceAccess, AccessLevel requiredDestinationAccess, bool publishOnDestination)
-		{
-			throw new NotImplementedException();
-		}
-
-		public virtual T CreateLanguageBranch<T>(ContentReference contentLink, ILanguageSelector languageSelector, AccessLevel access) where T : IContentData
-		{
-			throw new NotImplementedException();
-		}
-
-		public virtual void Delete(ContentReference contentLink, bool forceDelete, AccessLevel access)
-		{
-			throw new NotImplementedException();
-		}
-
-		public virtual void DeleteChildren(ContentReference contentLink, bool forceDelete, AccessLevel access)
-		{
-			throw new NotImplementedException();
-		}
-
-		public virtual void DeleteLanguageBranch(ContentReference contentLink, string languageBranch, AccessLevel access)
-		{
-			throw new NotImplementedException();
-		}
-
 		public virtual T GetDefault<T>(ContentReference parentLink) where T : IContentData
 		{
 			throw new NotImplementedException();
@@ -128,6 +116,16 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 		}
 
 		public virtual T GetDefault<T>(ContentReference parentLink, int contentTypeID, ILanguageSelector languageSelector) where T : IContentData
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual IEnumerable<ContentReference> GetDescendents(ContentReference contentLink)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual IEnumerable<IContent> GetItems(IEnumerable<ContentReference> contentLinks, ILanguageSelector selector)
 		{
 			throw new NotImplementedException();
 		}
@@ -156,5 +154,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 		{
 			throw new NotImplementedException();
 		}
+
+		#endregion
 	}
 }

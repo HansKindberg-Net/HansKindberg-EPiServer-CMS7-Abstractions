@@ -18,28 +18,6 @@ namespace EPiServer.Tests.Core
 			Assert.AreEqual(randomContentId, new ContentReference(randomContentId).ID);
 		}
 
-
-
-
-		[TestMethod]
-		public void EmptyReference_ShouldBeReadOnly()
-		{
-			Assert.IsTrue(ContentReference.EmptyReference.IsReadOnly);
-		}
-
-		[TestMethod]
-		public void SelfReference_ShouldBeReadOnly()
-		{
-			Assert.IsTrue(ContentReference.SelfReference.IsReadOnly);
-		}
-
-
-
-
-
-
-
-
 		[TestMethod]
 		[ExpectedException(typeof(ArgumentNullException))]
 		[SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "EPiServer.Core.ContentReference")]
@@ -56,6 +34,12 @@ namespace EPiServer.Tests.Core
 				if(argumentNullException.ParamName == "pageReference")
 					throw;
 			}
+		}
+
+		[TestMethod]
+		public void EmptyReference_ShouldBeReadOnly()
+		{
+			Assert.IsTrue(ContentReference.EmptyReference.IsReadOnly);
 		}
 
 		[TestMethod]
@@ -130,6 +114,12 @@ namespace EPiServer.Tests.Core
 			contentReferenceMock.Verify(contentReference => contentReference.Equals(It.IsAny<object>()), Times.Never());
 			Assert.IsNotNull(contentReferenceMock.Object != Mock.Of<ContentReference>());
 			contentReferenceMock.Verify(contentReference => contentReference.Equals(It.IsAny<object>()), Times.Once());
+		}
+
+		[TestMethod]
+		public void SelfReference_ShouldBeReadOnly()
+		{
+			Assert.IsTrue(ContentReference.SelfReference.IsReadOnly);
 		}
 
 		[TestMethod]

@@ -22,9 +22,9 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.Tests // ReSharper restore Ch
 				new DataFactoryWrapper(null);
 				// ReSharper restore ObjectCreationAsStatement
 			}
-			catch (ArgumentNullException argumentNullException)
+			catch(ArgumentNullException argumentNullException)
 			{
-				if (argumentNullException.ParamName == "dataFactory")
+				if(argumentNullException.ParamName == "dataFactory")
 					throw;
 			}
 		}
