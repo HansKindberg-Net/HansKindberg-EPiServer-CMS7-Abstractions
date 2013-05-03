@@ -1,10 +1,13 @@
-﻿namespace EPiServer.Core
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace EPiServer.Core
 {
 	public interface IContentData
 	{
 		#region Properties
 
-		PropertyDataCollection Properties { get; }
+		[SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "Property")]
+		PropertyDataCollection Property { get; }
 
 		#endregion
 	}
