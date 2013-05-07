@@ -91,6 +91,7 @@
     <Compile Include="Core\IContentData.cs" />
     <Compile Include="Core\IContentSource.cs" />
     <Compile Include="Core\LanguageManagerWrapper.cs" />
+    <Compile Include="Core\TypeMismatchException .cs" />
     <Compile Include="DataAbstraction\ILanguageBranchRepository.cs" />
     <Compile Include="Framework\Localization\LocalizationService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
