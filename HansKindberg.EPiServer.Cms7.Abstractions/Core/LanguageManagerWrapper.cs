@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Globalization;
+using EPiServer.Core;
 using EPiServer.Framework.Localization;
 
-namespace EPiServer.Core
+// ReSharper disable CheckNamespace
+
+namespace HansKindberg.EPiServer.Cms7.Abstractions.Core // ReSharper restore CheckNamespace
 {
 	public class LanguageManagerWrapper : LocalizationService
 	{

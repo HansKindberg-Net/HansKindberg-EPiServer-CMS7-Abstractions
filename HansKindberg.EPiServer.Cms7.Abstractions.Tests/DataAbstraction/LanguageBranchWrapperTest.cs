@@ -1,8 +1,10 @@
 ﻿using System;
-using EPiServer.DataAbstraction;
+using HansKindberg.EPiServer.Cms7.Abstractions.DataAbstraction;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace EPiServer.Tests.DataAbstraction
+// ReSharper disable CheckNamespace
+
+namespace HansKindberg.EPiServer.Cms7.Abstractions.Tests.DataAbstraction // ReSharper restore CheckNamespace
 {
 	[TestClass]
 	public class LanguageBranchWrapperTest

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using EPiServer.DataAbstraction;
 
-namespace EPiServer.DataAbstraction
+// ReSharper disable CheckNamespace
+
+namespace HansKindberg.EPiServer.Cms7.Abstractions.DataAbstraction // ReSharper restore CheckNamespace
 {
 	public class LanguageBranchWrapper : ILanguageBranchRepository
 	{
