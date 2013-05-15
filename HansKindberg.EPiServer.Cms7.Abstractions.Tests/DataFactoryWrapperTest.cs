@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using EPiServer.Web;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 // ReSharper disable CheckNamespace
 
@@ -19,7 +21,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.Tests // ReSharper restore Ch
 			try
 			{
 				// ReSharper disable ObjectCreationAsStatement
-				new DataFactoryWrapper(null);
+				new DataFactoryWrapper(null, Mock.Of<IPermanentLinkMapper>());
 				// ReSharper restore ObjectCreationAsStatement
 			}
 			catch(ArgumentNullException argumentNullException)

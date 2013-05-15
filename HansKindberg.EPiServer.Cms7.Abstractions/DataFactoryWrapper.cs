@@ -7,6 +7,7 @@ using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAccess;
 using EPiServer.Security;
+using EPiServer.Web;
 
 // ReSharper disable CheckNamespace
 
@@ -17,17 +18,22 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 		#region Fields
 
 		private readonly DataFactory _dataFactory;
+		private readonly IPermanentLinkMapper _permanentLinkMapper;
 
 		#endregion
 
 		#region Constructors
 
-		public DataFactoryWrapper(DataFactory dataFactory)
+		public DataFactoryWrapper(DataFactory dataFactory, IPermanentLinkMapper permanentLinkMapper)
 		{
 			if(dataFactory == null)
 				throw new ArgumentNullException("dataFactory");
 
+			if(permanentLinkMapper == null)
+				throw new ArgumentNullException("permanentLinkMapper");
+
 			this._dataFactory = dataFactory;
+			this._permanentLinkMapper = permanentLinkMapper;
 		}
 
 		#endregion
@@ -37,6 +43,11 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 		protected internal DataFactory DataFactory
 		{
 			get { return this._dataFactory; }
+		}
+
+		protected internal IPermanentLinkMapper PermanentLinkMapper
+		{
+			get { return this._permanentLinkMapper; }
 		}
 
 		#endregion
