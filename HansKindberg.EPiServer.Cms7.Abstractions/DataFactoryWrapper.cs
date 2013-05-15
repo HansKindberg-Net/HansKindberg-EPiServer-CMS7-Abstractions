@@ -8,6 +8,7 @@ using EPiServer.Core;
 using EPiServer.DataAccess;
 using EPiServer.Security;
 using EPiServer.Web;
+using HansKindberg.EPiServer.Cms7.Abstractions.Core.Extensions;
 
 // ReSharper disable CheckNamespace
 
@@ -103,7 +104,15 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 
 		public virtual T Get<T>(Guid contentGuid) where T : IContentData
 		{
-			throw new NotImplementedException();
+			PermanentPageLinkMap permanentPageLinkMap = this.PermanentLinkMapper.Find(contentGuid) as PermanentPageLinkMap;
+
+			if(permanentPageLinkMap == null)
+				throw new ContentNotFoundException(contentGuid);
+
+			PageReference pageLink = permanentPageLinkMap.PageReference;
+			ContentReference contentLink = pageLink.ToContentReference();
+
+			return this.CastOrThrowTypeMismatchException<T>(this.GetPage(pageLink), contentLink);
 		}
 
 		public virtual T Get<T>(ContentReference contentLink, ILanguageSelector selector) where T : IContentData
@@ -115,7 +124,15 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 
 		public virtual T Get<T>(Guid contentGuid, ILanguageSelector selector) where T : IContentData
 		{
-			throw new NotImplementedException();
+			PermanentPageLinkMap permanentPageLinkMap = this.PermanentLinkMapper.Find(contentGuid) as PermanentPageLinkMap;
+
+			if(permanentPageLinkMap == null)
+				throw new ContentNotFoundException(contentGuid);
+
+			PageReference pageLink = permanentPageLinkMap.PageReference;
+			ContentReference contentLink = pageLink.ToContentReference();
+
+			return this.CastOrThrowTypeMismatchException<T>(this.GetPage(pageLink, selector), contentLink);
 		}
 
 		public virtual IEnumerable<IContent> GetAncestors(ContentReference contentLink)
@@ -169,7 +186,8 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 			throw new NotImplementedException();
 		}
 
-		public virtual T GetDefault<T>(ContentReference parentLink, int contentTypeID, ILanguageSelector languageSelector) where T : IContentData
+		// ReSharper disable InconsistentNaming
+		public virtual T GetDefault<T>(ContentReference parentLink, int contentTypeID, ILanguageSelector languageSelector) where T : IContentData // ReSharper restore InconsistentNaming
 		{
 			throw new NotImplementedException();
 		}
