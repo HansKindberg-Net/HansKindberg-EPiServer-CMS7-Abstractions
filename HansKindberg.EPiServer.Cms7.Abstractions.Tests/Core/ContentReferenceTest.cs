@@ -12,6 +12,13 @@ namespace EPiServer.Tests.Core
 		#region Methods
 
 		[TestMethod]
+		public void APageReferenceShouldBeAbleToBePassedAsParameterToAMethodWithAContentReferenceParameter()
+		{
+			ContentReference contentReference = MethodWithContentReferenceParameter(new PageReference(1));
+			Assert.AreEqual(1, contentReference.ID);
+		}
+
+		[TestMethod]
 		public void Constructor_WithContentIdParameter_ShouldSetTheId()
 		{
 			int randomContentId = GetRandomInteger();
@@ -84,6 +91,12 @@ namespace EPiServer.Tests.Core
 		}
 
 		[TestMethod]
+		public void ImplicitOperator_Test()
+		{
+			Assert.Inconclusive("Implement one or more tests. Not shore wat to name it. Look at PageReferenceExtension");
+		}
+
+		[TestMethod]
 		public void InequalityOperator_IfBothParametersAreNull_ShouldReturnFalse()
 		{
 			Assert.IsFalse((ContentReference) null != null);
@@ -114,6 +127,11 @@ namespace EPiServer.Tests.Core
 			contentReferenceMock.Verify(contentReference => contentReference.Equals(It.IsAny<object>()), Times.Never());
 			Assert.IsNotNull(contentReferenceMock.Object != Mock.Of<ContentReference>());
 			contentReferenceMock.Verify(contentReference => contentReference.Equals(It.IsAny<object>()), Times.Once());
+		}
+
+		private static ContentReference MethodWithContentReferenceParameter(ContentReference contentReference)
+		{
+			return contentReference;
 		}
 
 		[TestMethod]

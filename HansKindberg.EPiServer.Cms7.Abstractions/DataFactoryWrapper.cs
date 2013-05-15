@@ -8,7 +8,6 @@ using EPiServer.Core;
 using EPiServer.DataAccess;
 using EPiServer.Security;
 using EPiServer.Web;
-using HansKindberg.EPiServer.Cms7.Abstractions.Core.Extensions;
 
 // ReSharper disable CheckNamespace
 
@@ -109,10 +108,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 			if(permanentPageLinkMap == null)
 				throw new ContentNotFoundException(contentGuid);
 
-			PageReference pageLink = permanentPageLinkMap.PageReference;
-			ContentReference contentLink = pageLink.ToContentReference();
-
-			return this.CastOrThrowTypeMismatchException<T>(this.GetPage(pageLink), contentLink);
+			return this.CastOrThrowTypeMismatchException<T>(this.GetPage(permanentPageLinkMap.PageReference), permanentPageLinkMap.PageReference);
 		}
 
 		public virtual T Get<T>(ContentReference contentLink, ILanguageSelector selector) where T : IContentData
@@ -129,10 +125,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 			if(permanentPageLinkMap == null)
 				throw new ContentNotFoundException(contentGuid);
 
-			PageReference pageLink = permanentPageLinkMap.PageReference;
-			ContentReference contentLink = pageLink.ToContentReference();
-
-			return this.CastOrThrowTypeMismatchException<T>(this.GetPage(pageLink, selector), contentLink);
+			return this.CastOrThrowTypeMismatchException<T>(this.GetPage(permanentPageLinkMap.PageReference, selector), permanentPageLinkMap.PageReference);
 		}
 
 		public virtual IEnumerable<IContent> GetAncestors(ContentReference contentLink)

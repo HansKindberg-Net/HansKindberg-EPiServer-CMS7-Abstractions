@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
-using HansKindberg.EPiServer.Cms7.Abstractions.Core.Extensions;
 
 namespace EPiServer.Core
 {
@@ -259,7 +258,7 @@ namespace EPiServer.Core
 
 			bool tryParse = PageReference.TryParse(complexReference, out pageReference);
 
-			result = pageReference.ToContentReference();
+			result = pageReference;
 
 			return tryParse;
 		}
@@ -282,6 +281,15 @@ namespace EPiServer.Core
 		public static bool operator !=(ContentReference firstContentReference, ContentReference secondContentReference)
 		{
 			return !(firstContentReference == secondContentReference);
+		}
+
+		#endregion
+
+		#region Implicit operator
+
+		public static implicit operator ContentReference(PageReference pageReference)
+		{
+			return pageReference == null ? null : new ContentReference(pageReference);
 		}
 
 		#endregion
