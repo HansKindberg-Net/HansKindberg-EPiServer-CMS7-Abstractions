@@ -87,7 +87,6 @@
     <Compile Include="Core\ContentNotFoundException.cs" />
     <Compile Include="Core\ContentReference.cs" />
     <Compile Include="Core\ContentReferenceExtensions.cs" />
-    <Compile Include="Core\Extensions\PageReferenceExtension.cs" />
     <Compile Include="Core\IContent.cs" />
     <Compile Include="Core\IContentData.cs" />
     <Compile Include="Core\IContentSource.cs" />
