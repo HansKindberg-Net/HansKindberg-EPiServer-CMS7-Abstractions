@@ -210,7 +210,12 @@ namespace EPiServer.Core
 		{
 			ContentReference contentReference = o as ContentReference;
 
-			return contentReference != null && this._pageReference.Equals(contentReference._pageReference);
+			if(contentReference != null)
+				return this._pageReference.Equals(contentReference._pageReference);
+
+			PageReference pageReference = o as PageReference;
+
+			return pageReference != null && this._pageReference.Equals(pageReference);
 		}
 
 		public override int GetHashCode()

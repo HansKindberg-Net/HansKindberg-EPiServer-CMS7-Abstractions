@@ -98,7 +98,14 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 		{
 			this.ThrowArgumentNullExceptionIfContentLinkIsNullOrEmpty(contentLink);
 
-			return this.CastOrThrowTypeMismatchException<T>(this.GetPage(contentLink.ToPageReference()), contentLink);
+			try
+			{
+				return this.CastOrThrowTypeMismatchException<T>(this.GetPage(contentLink.ToPageReference()), contentLink);
+			}
+			catch(PageNotFoundException)
+			{
+				throw new ContentNotFoundException(contentLink);
+			}
 		}
 
 		public virtual T Get<T>(Guid contentGuid) where T : IContentData
@@ -108,14 +115,21 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 			if(permanentPageLinkMap == null)
 				throw new ContentNotFoundException(contentGuid);
 
-			return this.CastOrThrowTypeMismatchException<T>(this.GetPage(permanentPageLinkMap.PageReference), permanentPageLinkMap.PageReference);
+			return this.Get<T>(permanentPageLinkMap.PageReference);
 		}
 
 		public virtual T Get<T>(ContentReference contentLink, ILanguageSelector selector) where T : IContentData
 		{
 			this.ThrowArgumentNullExceptionIfContentLinkIsNullOrEmpty(contentLink);
 
-			return this.CastOrThrowTypeMismatchException<T>(this.GetPage(contentLink.ToPageReference(), selector), contentLink);
+			try
+			{
+				return this.CastOrThrowTypeMismatchException<T>(this.GetPage(contentLink.ToPageReference(), selector), contentLink);
+			}
+			catch(PageNotFoundException)
+			{
+				throw new ContentNotFoundException(contentLink);
+			}
 		}
 
 		public virtual T Get<T>(Guid contentGuid, ILanguageSelector selector) where T : IContentData
@@ -125,7 +139,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 			if(permanentPageLinkMap == null)
 				throw new ContentNotFoundException(contentGuid);
 
-			return this.CastOrThrowTypeMismatchException<T>(this.GetPage(permanentPageLinkMap.PageReference, selector), permanentPageLinkMap.PageReference);
+			return this.Get<T>(permanentPageLinkMap.PageReference, selector);
 		}
 
 		public virtual IEnumerable<IContent> GetAncestors(ContentReference contentLink)
@@ -152,21 +166,42 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 		{
 			this.ThrowArgumentNullExceptionIfContentLinkIsNullOrEmpty(contentLink);
 
-			return this.GetChildren(contentLink.ToPageReference()).OfType<T>();
+			try
+			{
+				return this.GetChildren(contentLink.ToPageReference()).OfType<T>();
+			}
+			catch(PageNotFoundException)
+			{
+				throw new ContentNotFoundException(contentLink);
+			}
 		}
 
 		public virtual IEnumerable<T> GetChildren<T>(ContentReference contentLink, ILanguageSelector selector) where T : IContentData
 		{
 			this.ThrowArgumentNullExceptionIfContentLinkIsNullOrEmpty(contentLink);
 
-			return this.GetChildren(contentLink.ToPageReference(), selector).OfType<T>();
+			try
+			{
+				return this.GetChildren(contentLink.ToPageReference(), selector).OfType<T>();
+			}
+			catch(PageNotFoundException)
+			{
+				throw new ContentNotFoundException(contentLink);
+			}
 		}
 
 		public virtual IEnumerable<T> GetChildren<T>(ContentReference contentLink, ILanguageSelector selector, int startIndex, int maxRows) where T : IContentData
 		{
 			this.ThrowArgumentNullExceptionIfContentLinkIsNullOrEmpty(contentLink);
 
-			return this.GetChildren(contentLink.ToPageReference(), selector, startIndex, maxRows).OfType<T>();
+			try
+			{
+				return this.GetChildren(contentLink.ToPageReference(), selector, startIndex, maxRows).OfType<T>();
+			}
+			catch(PageNotFoundException)
+			{
+				throw new ContentNotFoundException(contentLink);
+			}
 		}
 
 		public virtual T GetDefault<T>(ContentReference parentLink) where T : IContentData

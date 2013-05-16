@@ -13,7 +13,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.Core.Extensions // ReSharper 
 		[Obsolete("Use the implicit operator of ContentReference instead: (ContentReference)pageReference", false)]
 		public static ContentReference ToContentReference(this PageReference pageLink)
 		{
-			return pageLink == null ? null : new ContentReference(pageLink);
+			return pageLink;
 		}
 
 		#endregion

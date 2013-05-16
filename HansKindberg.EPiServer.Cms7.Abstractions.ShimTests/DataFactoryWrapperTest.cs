@@ -94,6 +94,18 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			}
 		}
 
+		private static bool ContentNotFoundExceptionIsCorrect(ContentNotFoundException contentNotFoundException, PageReference pageLink)
+		{
+			// ReSharper disable SuspiciousTypeConversion.Global
+			return contentNotFoundException.ContentLink.Equals(pageLink) && contentNotFoundException.Message == string.Format(CultureInfo.InvariantCulture, "Content with id {0} was not found", pageLink);
+			// ReSharper restore SuspiciousTypeConversion.Global
+		}
+
+		private static bool ContentNotFoundExceptionIsCorrect(ContentNotFoundException contentNotFoundException, Guid contentGuid)
+		{
+			return contentNotFoundException.ContentGuid.Equals(contentGuid) && contentNotFoundException.Message == string.Format(CultureInfo.InvariantCulture, "Content with Guid \"{0}\" was not found", contentGuid);
+		}
+
 		private static ContentReference CreateRandomContentReference()
 		{
 			int random = DateTime.Now.Second%3;
@@ -106,6 +118,38 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 					return ContentReference.EmptyReference;
 				default:
 					return new ContentReference(DateTime.Now.Millisecond + 1);
+			}
+		}
+
+		private static PageReference CreateRandomPageReference()
+		{
+			int pageId = DateTime.Now.Millisecond;
+			int workPageId = DateTime.Now.Second;
+			string remoteSite = DateTime.Now.Second%2 == 0 ? "Test" : null;
+
+			return new PageReference(pageId, workPageId, remoteSite);
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ContentNotFoundException))]
+		public void GetChildren_Generic_WithFourParameters_IfGetChildrenWithPageReferenceParameterThrowsAPageNotFoundException_ShouldThrowAContentNotFoundException()
+		{
+			using(ShimsContext.Create())
+			{
+				PageReference pageLink = CreateRandomPageReference();
+				ShimDataFactory.StaticConstructor = () => { };
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>(), It.IsAny<int>(), It.IsAny<int>())).Throws(new PageNotFoundException(pageLink));
+
+				try
+				{
+					dataFactoryWrapperMock.Object.GetChildren<IContent>(new ContentReference(pageLink), Mock.Of<ILanguageSelector>(), DateTime.Now.Second, DateTime.Now.Millisecond);
+				}
+				catch(ContentNotFoundException contentNotFoundException)
+				{
+					if(ContentNotFoundExceptionIsCorrect(contentNotFoundException, pageLink))
+						throw;
+				}
 			}
 		}
 
@@ -178,6 +222,29 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 		}
 
 		[TestMethod]
+		[ExpectedException(typeof(ContentNotFoundException))]
+		public void GetChildren_Generic_WithOneParameter_IfGetChildrenWithPageReferenceParameterThrowsAPageNotFoundException_ShouldThrowAContentNotFoundException()
+		{
+			using(ShimsContext.Create())
+			{
+				PageReference pageLink = CreateRandomPageReference();
+				ShimDataFactory.StaticConstructor = () => { };
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>())).Throws(new PageNotFoundException(pageLink));
+
+				try
+				{
+					dataFactoryWrapperMock.Object.GetChildren<IContent>(new ContentReference(pageLink));
+				}
+				catch(ContentNotFoundException contentNotFoundException)
+				{
+					if(ContentNotFoundExceptionIsCorrect(contentNotFoundException, pageLink))
+						throw;
+				}
+			}
+		}
+
+		[TestMethod]
 		[ExpectedException(typeof(InvalidOperationException))]
 		public void GetChildren_Generic_WithOneParameter_IfGetChildrenWithPageReferenceParameterThrowsException_ShouldThrowTheException()
 		{
@@ -242,6 +309,29 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>())).Returns(pageDataCollection);
 				IEnumerable<IContentData> children = dataFactoryWrapperMock.Object.GetChildren<IContentData>(new ContentReference(DateTime.Now.Millisecond));
 				Assert.AreEqual(items/2, children.Count());
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ContentNotFoundException))]
+		public void GetChildren_Generic_WithTwoParameters_IfGetChildrenWithPageReferenceParameterThrowsAPageNotFoundException_ShouldThrowAContentNotFoundException()
+		{
+			using(ShimsContext.Create())
+			{
+				PageReference pageLink = CreateRandomPageReference();
+				ShimDataFactory.StaticConstructor = () => { };
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Throws(new PageNotFoundException(pageLink));
+
+				try
+				{
+					dataFactoryWrapperMock.Object.GetChildren<IContent>(new ContentReference(pageLink), Mock.Of<ILanguageSelector>());
+				}
+				catch(ContentNotFoundException contentNotFoundException)
+				{
+					if(ContentNotFoundExceptionIsCorrect(contentNotFoundException, pageLink))
+						throw;
+				}
 			}
 		}
 
@@ -469,14 +559,37 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(PageNotFoundException))]
-		public void Get_Generic_WithContentReferenceAndLanguageSelectorParameters_IfGetChildrenWithPageReferenceParameterThrowsException_ShouldThrowTheException()
+		[ExpectedException(typeof(ContentNotFoundException))]
+		public void Get_Generic_WithContentReferenceAndLanguageSelectorParameters_IfGetPageWithPageReferenceAndLanguageSelectorParametersThrowsAPageNotFoundException_ShouldThrowAContentNotFoundException()
+		{
+			using(ShimsContext.Create())
+			{
+				PageReference pageLink = CreateRandomPageReference();
+				ShimDataFactory.StaticConstructor = () => { };
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Throws(new PageNotFoundException(pageLink));
+
+				try
+				{
+					dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(pageLink), Mock.Of<ILanguageSelector>());
+				}
+				catch(ContentNotFoundException contentNotFoundException)
+				{
+					if(ContentNotFoundExceptionIsCorrect(contentNotFoundException, pageLink))
+						throw;
+				}
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(InvalidOperationException))]
+		public void Get_Generic_WithContentReferenceAndLanguageSelectorParameters_IfGetPageWithPageReferenceAndLanguageSelectorParametersThrowsException_ShouldThrowTheException()
 		{
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
 				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
-				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Throws(new PageNotFoundException(Mock.Of<PageReference>()));
+				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Throws(new InvalidOperationException());
 				dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(DateTime.Now.Millisecond), Mock.Of<ILanguageSelector>());
 			}
 		}
@@ -538,14 +651,37 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(PageNotFoundException))]
-		public void Get_Generic_WithContentReferenceParameter_IfGetChildrenWithPageReferenceParameterThrowsException_ShouldThrowTheException()
+		[ExpectedException(typeof(ContentNotFoundException))]
+		public void Get_Generic_WithContentReferenceParameter_IfGetPageWithPageReferenceParameterThrowsAPageNotFoundException_ShouldThrowAContentNotFoundException()
+		{
+			using(ShimsContext.Create())
+			{
+				PageReference pageLink = CreateRandomPageReference();
+				ShimDataFactory.StaticConstructor = () => { };
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>())).Throws(new PageNotFoundException(pageLink));
+
+				try
+				{
+					dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(pageLink));
+				}
+				catch(ContentNotFoundException contentNotFoundException)
+				{
+					if(ContentNotFoundExceptionIsCorrect(contentNotFoundException, pageLink))
+						throw;
+				}
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(InvalidOperationException))]
+		public void Get_Generic_WithContentReferenceParameter_IfGetPageWithPageReferenceParameterThrowsException_ShouldThrowTheException()
 		{
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
 				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
-				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>())).Throws(new PageNotFoundException(Mock.Of<PageReference>()));
+				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>())).Throws(new InvalidOperationException());
 				dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(DateTime.Now.Millisecond));
 			}
 		}
@@ -603,6 +739,96 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>()), Times.Never());
 				dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(DateTime.Now.Millisecond));
 				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>()), Times.Once());
+			}
+		}
+
+		[TestMethod]
+		public void Get_Generic_WithGuidAndLanguageSelectorParameters_IfTheGuidMapsToAContentReference_ShouldCallGetWithContentReferenceAndLanguageSelectorParameters()
+		{
+			using(ShimsContext.Create())
+			{
+				Guid contentGuid = Guid.NewGuid();
+
+				Mock<IPermanentLinkMapper> permanentLinkMapperMock = new Mock<IPermanentLinkMapper>();
+				permanentLinkMapperMock.Setup(permanentLinkMapper => permanentLinkMapper.Find(contentGuid)).Returns(new PermanentPageLinkMap(contentGuid, null, null, Mock.Of<PageReference>(), null));
+
+				ShimDataFactory.StaticConstructor = () => { };
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), permanentLinkMapperMock.Object}) {CallBase = true};
+				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.Get<IContent>(It.IsAny<ContentReference>(), It.IsAny<ILanguageSelector>())).Returns(Mock.Of<IContent>());
+				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.Get<IContent>(It.IsAny<ContentReference>(), It.IsAny<ILanguageSelector>()), Times.Never());
+				dataFactoryWrapperMock.Object.Get<IContent>(contentGuid, Mock.Of<ILanguageSelector>());
+				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.Get<IContent>(It.IsAny<ContentReference>(), It.IsAny<ILanguageSelector>()), Times.Once());
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ContentNotFoundException))]
+		public void Get_Generic_WithGuidAndLanguageSelectorParameters_IfTheGuidNotMapsToAContentReference_ShouldThrowAContentNotFoundException()
+		{
+			using(ShimsContext.Create())
+			{
+				Guid contentGuid = Guid.NewGuid();
+
+				Mock<IPermanentLinkMapper> permanentLinkMapperMock = new Mock<IPermanentLinkMapper>();
+				permanentLinkMapperMock.Setup(permanentLinkMapper => permanentLinkMapper.Find(contentGuid)).Returns((PermanentPageLinkMap) null);
+
+				ShimDataFactory.StaticConstructor = () => { };
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), permanentLinkMapperMock.Object}) {CallBase = true};
+
+				try
+				{
+					dataFactoryWrapperMock.Object.Get<IContent>(contentGuid, Mock.Of<ILanguageSelector>());
+				}
+				catch(ContentNotFoundException contentNotFoundException)
+				{
+					if(ContentNotFoundExceptionIsCorrect(contentNotFoundException, contentGuid))
+						throw;
+				}
+			}
+		}
+
+		[TestMethod]
+		public void Get_Generic_WithGuidParameter_IfTheGuidMapsToAContentReference_ShouldCallGetWithContentReferenceParameter()
+		{
+			using(ShimsContext.Create())
+			{
+				Guid contentGuid = Guid.NewGuid();
+
+				Mock<IPermanentLinkMapper> permanentLinkMapperMock = new Mock<IPermanentLinkMapper>();
+				permanentLinkMapperMock.Setup(permanentLinkMapper => permanentLinkMapper.Find(contentGuid)).Returns(new PermanentPageLinkMap(contentGuid, null, null, Mock.Of<PageReference>(), null));
+
+				ShimDataFactory.StaticConstructor = () => { };
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), permanentLinkMapperMock.Object}) {CallBase = true};
+				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.Get<IContent>(It.IsAny<ContentReference>())).Returns(Mock.Of<IContent>());
+				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.Get<IContent>(It.IsAny<ContentReference>()), Times.Never());
+				dataFactoryWrapperMock.Object.Get<IContent>(contentGuid);
+				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.Get<IContent>(It.IsAny<ContentReference>()), Times.Once());
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ContentNotFoundException))]
+		public void Get_Generic_WithGuidParameter_IfTheGuidNotMapsToAContentReference_ShouldThrowAContentNotFoundException()
+		{
+			using(ShimsContext.Create())
+			{
+				Guid contentGuid = Guid.NewGuid();
+
+				Mock<IPermanentLinkMapper> permanentLinkMapperMock = new Mock<IPermanentLinkMapper>();
+				permanentLinkMapperMock.Setup(permanentLinkMapper => permanentLinkMapper.Find(contentGuid)).Returns((PermanentPageLinkMap) null);
+
+				ShimDataFactory.StaticConstructor = () => { };
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), permanentLinkMapperMock.Object}) {CallBase = true};
+
+				try
+				{
+					dataFactoryWrapperMock.Object.Get<IContent>(contentGuid);
+				}
+				catch(ContentNotFoundException contentNotFoundException)
+				{
+					if(ContentNotFoundExceptionIsCorrect(contentNotFoundException, contentGuid))
+						throw;
+				}
 			}
 		}
 

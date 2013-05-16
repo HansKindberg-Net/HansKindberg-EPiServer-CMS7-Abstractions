@@ -84,6 +84,17 @@ namespace EPiServer.Tests.Core
 			contentReferenceMock.Verify(contentReference => contentReference.Equals(It.IsAny<object>()), Times.Once());
 		}
 
+		[TestMethod]
+		public void Equals_IfTheParameterIsAPageReferenceAndThePropertiesAreEqual_ShouldReturnTrue()
+		{
+			PageReference pageReference = new PageReference(DateTime.Now.Millisecond, DateTime.Now.Second, DateTime.Now.Second%2 == 0 ? "Test" : null);
+			ContentReference contentReference = new ContentReference(pageReference.ID, pageReference.WorkID, pageReference.RemoteSite);
+
+			// ReSharper disable SuspiciousTypeConversion.Global
+			Assert.IsTrue(contentReference.Equals(pageReference));
+			// ReSharper restore SuspiciousTypeConversion.Global
+		}
+
 		private static int GetRandomInteger()
 		{
 			int randomInteger = DateTime.Now.Millisecond;
@@ -91,9 +102,16 @@ namespace EPiServer.Tests.Core
 		}
 
 		[TestMethod]
-		public void ImplicitOperator_Test()
+		public void ImplicitOperator_IfThePageReferenceParameterValueIsNotNull_ShouldReturnAContentReferenceWithThePageReferenceWrapped()
 		{
-			Assert.Inconclusive("Implement one or more tests. Not shore wat to name it. Look at PageReferenceExtension");
+			PageReference pageReference = new PageReference(DateTime.Now.Millisecond, DateTime.Now.Second);
+			Assert.AreEqual(pageReference, ((ContentReference) pageReference).PageReference);
+		}
+
+		[TestMethod]
+		public void ImplicitOperator_IfThePageReferenceParameterValueIsNull_ShouldReturnNull()
+		{
+			Assert.IsNull((ContentReference) (PageReference) null);
 		}
 
 		[TestMethod]

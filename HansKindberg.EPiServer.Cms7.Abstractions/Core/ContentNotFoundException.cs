@@ -26,7 +26,7 @@ namespace EPiServer.Core
 		}
 
 		[SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "guid")]
-		public ContentNotFoundException(Guid contentGuid) : base(string.Format(CultureInfo.InvariantCulture, "Content with Guid \"{0}\" was not found", contentGuid.ToString()))
+		public ContentNotFoundException(Guid contentGuid) : base(string.Format(CultureInfo.InvariantCulture, "Content with Guid \"{0}\" was not found", contentGuid))
 		{
 			this._contentGuid = contentGuid;
 		}
