@@ -16,9 +16,8 @@ namespace EPiServer.Core
 		// ReSharper restore InconsistentNaming
 		bool IsDeleted { get; set; }
 		string Name { get; set; }
+		ContentReference ParentLink { get; set; }
 
 		#endregion
-
-		//ContentReference ParentLink { get; set; } // Can not implement this yet.
 	}
 }
