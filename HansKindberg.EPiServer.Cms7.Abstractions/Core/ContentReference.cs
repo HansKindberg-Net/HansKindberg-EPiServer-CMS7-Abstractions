@@ -205,15 +205,14 @@ namespace EPiServer.Core
 			return new ContentReference(this._pageReference.CreateWritableClone());
 		}
 
-		[SuppressMessage("Microsoft.Naming", "CA1725:ParameterNamesShouldMatchBaseDeclaration", MessageId = "0#")]
-		public override bool Equals(object o)
+		public override bool Equals(object obj)
 		{
-			ContentReference contentReference = o as ContentReference;
+			ContentReference contentReference = obj as ContentReference;
 
 			if(contentReference != null)
 				return this._pageReference.Equals(contentReference._pageReference);
 
-			PageReference pageReference = o as PageReference;
+			PageReference pageReference = obj as PageReference;
 
 			return pageReference != null && this._pageReference.Equals(pageReference);
 		}
