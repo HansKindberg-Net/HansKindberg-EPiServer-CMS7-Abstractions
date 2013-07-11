@@ -90,11 +90,15 @@
     <Compile Include="Core\IContent.cs" />
     <Compile Include="Core\IContentData.cs" />
     <Compile Include="Core\IContentSource.cs" />
+    <Compile Include="Core\IContentVersionRepository.cs" />
     <Compile Include="Core\LanguageManagerWrapper.cs" />
     <Compile Include="Core\LanguageSelectorFactory.cs" />
     <Compile Include="Core\TypeMismatchException .cs" />
+    <Compile Include="DataAbstraction\ContentVersion.cs" />
+    <Compile Include="DataAbstraction\Extensions\ContentVersionExtension.cs" />
     <Compile Include="DataAbstraction\ILanguageBranchRepository.cs" />
     <Compile Include="DataAbstraction\LanguageBranchWrapper.cs" />
+    <Compile Include="DataAbstraction\PageVersionWrapper.cs" />
     <Compile Include="DataAnnotations\IgnoreAttribute.cs" />
     <Compile Include="Framework\Localization\LocalizationService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
