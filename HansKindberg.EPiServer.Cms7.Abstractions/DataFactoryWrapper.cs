@@ -222,7 +222,10 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 
 		public virtual IEnumerable<ContentReference> GetDescendents(ContentReference contentLink)
 		{
-			throw new NotImplementedException();
+			if(contentLink == null)
+				throw new ArgumentNullException("contentLink");
+
+			return this.DataFactory.GetDescendents(contentLink.ToPageReference()).Select(pageLink => (ContentReference) pageLink);
 		}
 
 		public virtual IEnumerable<IContent> GetItems(IEnumerable<ContentReference> contentLinks, ILanguageSelector selector)

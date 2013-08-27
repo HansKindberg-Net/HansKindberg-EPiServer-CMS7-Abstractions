@@ -27,10 +27,7 @@ namespace EPiServer
 		IEnumerable<T> GetChildren<T>(ContentReference contentLink) where T : IContentData;
 		IEnumerable<T> GetChildren<T>(ContentReference contentLink, ILanguageSelector selector) where T : IContentData;
 		IEnumerable<T> GetChildren<T>(ContentReference contentLink, ILanguageSelector selector, int startIndex, int maxRows) where T : IContentData;
-
-		[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Descendents")]
 		IEnumerable<ContentReference> GetDescendents(ContentReference contentLink);
-
 		IEnumerable<IContent> GetItems(IEnumerable<ContentReference> contentLinks, ILanguageSelector selector);
 
 		#endregion

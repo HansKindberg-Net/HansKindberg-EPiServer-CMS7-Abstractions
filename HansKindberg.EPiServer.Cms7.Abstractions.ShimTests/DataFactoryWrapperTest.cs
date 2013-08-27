@@ -192,7 +192,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 		}
 
 		[TestMethod]
-		public void GetChildren_Generic_WithFourParameters_ShouldReturnAnEnumerableWOfRequestedType()
+		public void GetChildren_Generic_WithFourParameters_ShouldReturnAnEnumerableOfRequestedType()
 		{
 			using(ShimsContext.Create())
 			{
@@ -497,6 +497,60 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				Assert.IsTrue(getChildrenIsCalled);
 				Assert.AreEqual(pageLinkParameter, pageLinkValue);
 				Assert.AreEqual(selectorParameter, selectorValue);
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void GetDescendents_IfTheContentReferenceParameterIsNull_ShouldThrowAnArgumentNullException()
+		{
+			using(ShimsContext.Create())
+			{
+				ShimDataFactory.StaticConstructor = () => { };
+
+				try
+				{
+					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).GetDescendents(null);
+				}
+				catch(ArgumentNullException argumentNullException)
+				{
+					if(argumentNullException.ParamName == "contentLink")
+						throw;
+				}
+			}
+		}
+
+		[TestMethod]
+		public void GetDescendents_ShouldCallGetDescendentsOfTheWrappedDataFactoryAndReturnAConvertedResult()
+		{
+			using(ShimsContext.Create())
+			{
+				bool getDescendentsIsCalled = false;
+				PageReference pageLinkValue = null;
+				IList<PageReference> pageReferenceList = new List<PageReference>(new[] {new PageReference(1), new PageReference(2), new PageReference(3)});
+				ShimDataFactory.StaticConstructor = () => { };
+				DataFactory dataFactory = new DataFactory();
+
+				new ShimDataFactory(dataFactory).GetDescendentsPageReference = delegate(PageReference pageLink)
+				{
+					getDescendentsIsCalled = true;
+					pageLinkValue = pageLink;
+					return pageReferenceList;
+				};
+
+				ContentReference contentLinkParameter = new ContentReference(DateTime.Now.Second);
+
+				Assert.IsFalse(getDescendentsIsCalled);
+				IEnumerable<ContentReference> descendents = new DataFactoryWrapper(dataFactory, Mock.Of<IPermanentLinkMapper>()).GetDescendents(contentLinkParameter);
+				Assert.IsTrue(getDescendentsIsCalled);
+				Assert.AreEqual(pageLinkValue, contentLinkParameter);
+				Assert.AreEqual(pageLinkValue.ID, contentLinkParameter.ID);
+				// ReSharper disable PossibleMultipleEnumeration
+				Assert.AreEqual(3, descendents.Count());
+				Assert.AreEqual(1, descendents.ElementAt(0).ID);
+				Assert.AreEqual(2, descendents.ElementAt(1).ID);
+				Assert.AreEqual(3, descendents.ElementAt(2).ID);
+				// ReSharper restore PossibleMultipleEnumeration
 			}
 		}
 
