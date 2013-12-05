@@ -260,12 +260,22 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 
 		public virtual void MoveToWastebasket(ContentReference contentLink, string deletedBy)
 		{
-			throw new NotImplementedException();
+			this.DataFactory.MoveToWastebasket(contentLink.ToPageReference());
 		}
 
 		public virtual ContentReference Save(IContent content, SaveAction action, AccessLevel access)
 		{
-			throw new NotImplementedException();
+			if(content == null)
+				throw new ArgumentNullException("content");
+
+			// ReSharper disable SuspiciousTypeConversion.Global
+			PageData pageData = content as PageData;
+			// ReSharper restore SuspiciousTypeConversion.Global
+
+			if(pageData == null)
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "It is only possible to save content inheriting from \"{0}\".", typeof(PageData)));
+
+			return this.DataFactory.Save(pageData, action, access);
 		}
 
 		protected internal virtual void ThrowArgumentNullExceptionIfContentLinkIsNullOrEmpty(ContentReference contentLink)

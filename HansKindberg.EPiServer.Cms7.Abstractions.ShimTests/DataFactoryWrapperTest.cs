@@ -6,7 +6,9 @@ using System.Linq;
 using System.Threading;
 using EPiServer;
 using EPiServer.Core;
+using EPiServer.DataAccess;
 using EPiServer.Fakes;
+using EPiServer.Security;
 using EPiServer.Web;
 using Microsoft.QualityTools.Testing.Fakes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -883,6 +885,89 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 					if(ContentNotFoundExceptionIsCorrect(contentNotFoundException, contentGuid))
 						throw;
 				}
+			}
+		}
+
+		[TestMethod]
+		public void MoveToWastebasket_ShouldCallMoveToWastebasketOnTheWrappedDataFactory()
+		{
+			using(ShimsContext.Create())
+			{
+				bool moveToWastebasketCalled = false;
+
+				ShimDataFactory.StaticConstructor = () => { };
+
+				ShimDataFactory shimDataFactory = new ShimDataFactory
+					{
+						MoveToWastebasketPageReference = delegate { moveToWastebasketCalled = true; }
+					};
+
+				Assert.IsFalse(moveToWastebasketCalled);
+
+				new DataFactoryWrapper(shimDataFactory, Mock.Of<IPermanentLinkMapper>()).MoveToWastebasket(It.IsAny<ContentReference>(), It.IsAny<string>());
+
+				Assert.IsTrue(moveToWastebasketCalled);
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(InvalidOperationException))]
+		public void Save_IfTheContentParameterDoesNotInheritFromPageData_ShouldThrowAnInvalidOperationException()
+		{
+			using(ShimsContext.Create())
+			{
+				ShimDataFactory.StaticConstructor = () => { };
+				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).Save(Mock.Of<IContent>(), It.IsAny<SaveAction>(), It.IsAny<AccessLevel>());
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Save_IfTheContentParameterIsNull_ShouldThrowAnArgumentNullException()
+		{
+			using(ShimsContext.Create())
+			{
+				ShimDataFactory.StaticConstructor = () => { };
+
+				try
+				{
+					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).Save(null, It.IsAny<SaveAction>(), It.IsAny<AccessLevel>());
+				}
+				catch(ArgumentNullException argumentNullException)
+				{
+					if(argumentNullException.ParamName.Equals("content", StringComparison.Ordinal))
+						throw;
+				}
+			}
+		}
+
+		[TestMethod]
+		public void Save_ShouldCallSaveOnTheWrappedDataFactory()
+		{
+			using(ShimsContext.Create())
+			{
+				bool saveCalled = false;
+				PageReference pageReference = new PageReference(1);
+
+				ShimDataFactory.StaticConstructor = () => { };
+
+				ShimDataFactory shimDataFactory = new ShimDataFactory
+					{
+						SavePageDataSaveActionAccessLevel = delegate
+						{
+							saveCalled = true;
+							return pageReference;
+						}
+					};
+
+				Assert.IsFalse(saveCalled);
+
+				Mock<PageData> pageDataMock = new Mock<PageData> {CallBase = true};
+				Mock<IContent> contentMock = pageDataMock.As<IContent>();
+
+				Assert.AreEqual(pageReference, new DataFactoryWrapper(shimDataFactory, Mock.Of<IPermanentLinkMapper>()).Save(contentMock.Object, It.IsAny<SaveAction>(), It.IsAny<AccessLevel>()));
+
+				Assert.IsTrue(saveCalled);
 			}
 		}
 
