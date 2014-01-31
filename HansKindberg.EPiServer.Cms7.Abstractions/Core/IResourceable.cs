@@ -1,4 +1,6 @@
-﻿namespace EPiServer.Core
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace EPiServer.Core
 {
 	public interface IResourceable
 	{
@@ -6,6 +8,7 @@
 
 		#region Properties
 
+		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
 		long ContentFolderID { get; set; }
 
 		#endregion
