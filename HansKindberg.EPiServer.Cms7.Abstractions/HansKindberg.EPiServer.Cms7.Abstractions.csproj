@@ -92,8 +92,10 @@
     <Compile Include="Core\IContentData.cs" />
     <Compile Include="Core\IContentSource.cs" />
     <Compile Include="Core\IContentVersionRepository.cs" />
+    <Compile Include="Core\ILocale.cs" />
     <Compile Include="Core\ILocalizable.cs" />
     <Compile Include="Core\IModifiedTrackable.cs" />
+    <Compile Include="Core\ILegacyResourceable.cs" />
     <Compile Include="Core\IResourceable.cs" />
     <Compile Include="Core\IVersionable.cs" />
     <Compile Include="Core\LanguageManagerWrapper.cs" />

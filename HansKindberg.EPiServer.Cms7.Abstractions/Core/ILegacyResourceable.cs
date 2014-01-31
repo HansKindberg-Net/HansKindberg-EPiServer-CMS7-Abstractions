@@ -1,16 +1,15 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace EPiServer.Core
 {
-	public interface IResourceable
+	public interface ILegacyResourceable
 	{
 		// ReSharper disable InconsistentNaming
 
 		#region Properties
 
 		[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
-		Guid ContentAssetsID { get; set; }
+		long ContentFolderID { get; set; }
 
 		#endregion
 
