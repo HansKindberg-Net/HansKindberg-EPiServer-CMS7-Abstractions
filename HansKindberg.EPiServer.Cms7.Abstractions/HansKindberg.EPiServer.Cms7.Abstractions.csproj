@@ -87,10 +87,15 @@
     <Compile Include="Core\ContentNotFoundException.cs" />
     <Compile Include="Core\ContentReference.cs" />
     <Compile Include="Core\ContentReferenceExtensions.cs" />
+    <Compile Include="Core\IChangeTrackable.cs" />
     <Compile Include="Core\IContent.cs" />
     <Compile Include="Core\IContentData.cs" />
     <Compile Include="Core\IContentSource.cs" />
     <Compile Include="Core\IContentVersionRepository.cs" />
+    <Compile Include="Core\ILocalizable.cs" />
+    <Compile Include="Core\IModifiedTrackable.cs" />
+    <Compile Include="Core\IResourceable.cs" />
+    <Compile Include="Core\IVersionable.cs" />
     <Compile Include="Core\LanguageManagerWrapper.cs" />
     <Compile Include="Core\LanguageSelectorFactory.cs" />
     <Compile Include="Core\TypeMismatchException .cs" />
