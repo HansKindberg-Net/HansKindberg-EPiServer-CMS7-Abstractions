@@ -10,6 +10,7 @@ using EPiServer.DataAccess;
 using EPiServer.Fakes;
 using EPiServer.Security;
 using EPiServer.Web;
+using HansKindberg.EPiServer.Cms7.Abstractions.Core;
 using Microsoft.QualityTools.Testing.Fakes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -24,52 +25,58 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 		#region Methods
 
 		[TestMethod]
-		[ExpectedException(typeof(TypeMismatchException))]
-		[SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "CastOr")]
-		public void CastOrThrowTypeMismatchException_IfThePageDataParameterIsNotOfRequiredType_ShouldThrowATypeMismatchException()
-		{
-			using(ShimsContext.Create())
-			{
-				ShimDataFactory.StaticConstructor = () => { };
-				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).CastOrThrowTypeMismatchException<IContentData>(new PageData(), CreateRandomContentReference());
-			}
-		}
-
-		[TestMethod]
-		[SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "CastOr")]
-		public void CastOrThrowTypeMismatchException_IfThePageDataParameterIsNull_ShouldReturnNull()
-		{
-			using(ShimsContext.Create())
-			{
-				ShimDataFactory.StaticConstructor = () => { };
-				Assert.IsNull(new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).CastOrThrowTypeMismatchException<IContentData>(null, CreateRandomContentReference()));
-			}
-		}
-
-		[TestMethod]
-		[SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "CastOr")]
-		public void CastOrThrowTypeMismatchException_IfThePageDataParameterIsOfRequiredType_ShouldReturnThePageDataParameterCasted()
-		{
-			using(ShimsContext.Create())
-			{
-				Mock<PageData> pageDataMock = new Mock<PageData>();
-				pageDataMock.As<IContent>();
-				PageData pageData = pageDataMock.Object;
-
-				ShimDataFactory.StaticConstructor = () => { };
-				IContent castedPageData = new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).CastOrThrowTypeMismatchException<IContent>(pageData, CreateRandomContentReference());
-				Assert.AreEqual(pageData, castedPageData);
-			}
-		}
-
-		[TestMethod]
 		public void Constructor_IfTheDataFactoryParameterIsNotNull_ShouldSetTheDataFactoryProperty()
 		{
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
 				DataFactory dataFactory = new DataFactory();
-				Assert.AreEqual(dataFactory, new DataFactoryWrapper(dataFactory, Mock.Of<IPermanentLinkMapper>()).DataFactory);
+				Assert.AreEqual(dataFactory, new DataFactoryWrapper(dataFactory, Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).DataFactory);
+			}
+		}
+
+		[TestMethod]
+		public void Constructor_IfThePageDataCasterParameterIsNotNull_ShouldSetThePageDataCasterProperty()
+		{
+			using(ShimsContext.Create())
+			{
+				ShimDataFactory.StaticConstructor = () => { };
+				IPageDataCaster pageDataCaster = Mock.Of<IPageDataCaster>();
+				Assert.AreEqual(pageDataCaster, new DataFactoryWrapper(new DataFactory(), pageDataCaster, Mock.Of<IPermanentLinkMapper>()).PageDataCaster);
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		[SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "HansKindberg.EPiServer.Cms7.Abstractions.DataFactoryWrapper")]
+		public void Constructor_IfThePageDataCasterParameterIsNull_ShouldThrowAnArgumentNullException()
+		{
+			using(ShimsContext.Create())
+			{
+				ShimDataFactory.StaticConstructor = () => { };
+
+				try
+				{
+					// ReSharper disable ObjectCreationAsStatement
+					new DataFactoryWrapper(new DataFactory(), null, Mock.Of<IPermanentLinkMapper>());
+					// ReSharper restore ObjectCreationAsStatement
+				}
+				catch(ArgumentNullException argumentNullException)
+				{
+					if(argumentNullException.ParamName == "pageDataCaster")
+						throw;
+				}
+			}
+		}
+
+		[TestMethod]
+		public void Constructor_IfThePermanentLinkMapperParameterIsNotNull_ShouldSetThePermanentLinkMapperProperty()
+		{
+			using(ShimsContext.Create())
+			{
+				ShimDataFactory.StaticConstructor = () => { };
+				IPermanentLinkMapper permanentLinkMapper = Mock.Of<IPermanentLinkMapper>();
+				Assert.AreEqual(permanentLinkMapper, new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), permanentLinkMapper).PermanentLinkMapper);
 			}
 		}
 
@@ -85,7 +92,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				try
 				{
 					// ReSharper disable ObjectCreationAsStatement
-					new DataFactoryWrapper(new DataFactory(), null);
+					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), null);
 					// ReSharper restore ObjectCreationAsStatement
 				}
 				catch(ArgumentNullException argumentNullException)
@@ -108,19 +115,9 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			return contentNotFoundException.ContentGuid.Equals(contentGuid) && contentNotFoundException.Message == string.Format(CultureInfo.InvariantCulture, "Content with Guid \"{0}\" was not found", contentGuid);
 		}
 
-		private static ContentReference CreateRandomContentReference()
+		private static IPageDataCaster CreateDefaultPageDataCaster()
 		{
-			int random = DateTime.Now.Second%3;
-
-			switch(random)
-			{
-				case 0:
-					return null;
-				case 1:
-					return ContentReference.EmptyReference;
-				default:
-					return new ContentReference(DateTime.Now.Millisecond + 1);
-			}
+			return new PageDataCaster();
 		}
 
 		private static PageReference CreateRandomPageReference()
@@ -140,7 +137,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			{
 				PageReference pageLink = CreateRandomPageReference();
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>(), It.IsAny<int>(), It.IsAny<int>())).Throws(new PageNotFoundException(pageLink));
 
 				try
@@ -162,7 +159,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>(), It.IsAny<int>(), It.IsAny<int>())).Throws(new InvalidOperationException());
 				dataFactoryWrapperMock.Object.GetChildren<IContent>(new ContentReference(DateTime.Now.Millisecond), Mock.Of<ILanguageSelector>(), DateTime.Now.Second, DateTime.Now.Millisecond);
 			}
@@ -175,7 +172,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).GetChildren<IContentData>(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null, Mock.Of<ILanguageSelector>(), DateTime.Now.Second, DateTime.Now.Millisecond);
+				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).GetChildren<IContentData>(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null, Mock.Of<ILanguageSelector>(), DateTime.Now.Second, DateTime.Now.Millisecond);
 			}
 		}
 
@@ -185,7 +182,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>(), It.IsAny<int>(), It.IsAny<int>())).Returns(new PageDataCollection());
 				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never());
 				dataFactoryWrapperMock.Object.GetChildren<IContent>(new ContentReference(DateTime.Now.Millisecond), Mock.Of<ILanguageSelector>(), DateTime.Now.Second, DateTime.Now.Millisecond);
@@ -216,7 +213,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				}
 
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>(), It.IsAny<int>(), It.IsAny<int>())).Returns(pageDataCollection);
 				IEnumerable<IContentData> children = dataFactoryWrapperMock.Object.GetChildren<IContentData>(new ContentReference(DateTime.Now.Millisecond), Mock.Of<ILanguageSelector>(), DateTime.Now.Second, DateTime.Now.Millisecond);
 				Assert.AreEqual(items/2, children.Count());
@@ -231,7 +228,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			{
 				PageReference pageLink = CreateRandomPageReference();
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>())).Throws(new PageNotFoundException(pageLink));
 
 				try
@@ -253,7 +250,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>())).Throws(new InvalidOperationException());
 				dataFactoryWrapperMock.Object.GetChildren<IContent>(new ContentReference(DateTime.Now.Millisecond));
 			}
@@ -266,7 +263,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).GetChildren<IContentData>(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null);
+				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).GetChildren<IContentData>(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null);
 			}
 		}
 
@@ -276,7 +273,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>())).Returns(new PageDataCollection());
 				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>()), Times.Never());
 				dataFactoryWrapperMock.Object.GetChildren<IContent>(new ContentReference(DateTime.Now.Millisecond));
@@ -307,7 +304,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				}
 
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>())).Returns(pageDataCollection);
 				IEnumerable<IContentData> children = dataFactoryWrapperMock.Object.GetChildren<IContentData>(new ContentReference(DateTime.Now.Millisecond));
 				Assert.AreEqual(items/2, children.Count());
@@ -322,7 +319,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			{
 				PageReference pageLink = CreateRandomPageReference();
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Throws(new PageNotFoundException(pageLink));
 
 				try
@@ -344,7 +341,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Throws(new InvalidOperationException());
 				dataFactoryWrapperMock.Object.GetChildren<IContent>(new ContentReference(DateTime.Now.Millisecond), Mock.Of<ILanguageSelector>());
 			}
@@ -357,7 +354,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).GetChildren<IContentData>(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null, Mock.Of<ILanguageSelector>());
+				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).GetChildren<IContentData>(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null, Mock.Of<ILanguageSelector>());
 			}
 		}
 
@@ -367,7 +364,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Returns(new PageDataCollection());
 				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>()), Times.Never());
 				dataFactoryWrapperMock.Object.GetChildren<IContent>(new ContentReference(DateTime.Now.Millisecond), Mock.Of<ILanguageSelector>());
@@ -398,7 +395,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				}
 
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetChildren(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Returns(pageDataCollection);
 				IEnumerable<IContentData> children = dataFactoryWrapperMock.Object.GetChildren<IContentData>(new ContentReference(DateTime.Now.Millisecond), Mock.Of<ILanguageSelector>());
 				Assert.AreEqual(items/2, children.Count());
@@ -435,7 +432,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				int maxRowsParameter = DateTime.Now.Millisecond;
 
 				Assert.IsFalse(getChildrenIsCalled);
-				Assert.AreEqual(pageDataCollection, new DataFactoryWrapper(dataFactory, Mock.Of<IPermanentLinkMapper>()).GetChildren(pageLinkParameter, selectorParameter, startIndexParameter, maxRowsParameter));
+				Assert.AreEqual(pageDataCollection, new DataFactoryWrapper(dataFactory, Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).GetChildren(pageLinkParameter, selectorParameter, startIndexParameter, maxRowsParameter));
 				Assert.IsTrue(getChildrenIsCalled);
 				Assert.AreEqual(pageLinkParameter, pageLinkValue);
 				Assert.AreEqual(selectorParameter, selectorValue);
@@ -465,7 +462,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				PageReference pageLinkParameter = new PageReference();
 
 				Assert.IsFalse(getChildrenIsCalled);
-				Assert.AreEqual(pageDataCollection, new DataFactoryWrapper(dataFactory, Mock.Of<IPermanentLinkMapper>()).GetChildren(pageLinkParameter));
+				Assert.AreEqual(pageDataCollection, new DataFactoryWrapper(dataFactory, Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).GetChildren(pageLinkParameter));
 				Assert.IsTrue(getChildrenIsCalled);
 				Assert.AreEqual(pageLinkParameter, pageLinkValue);
 			}
@@ -495,7 +492,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				ILanguageSelector selectorParameter = Mock.Of<ILanguageSelector>();
 
 				Assert.IsFalse(getChildrenIsCalled);
-				Assert.AreEqual(pageDataCollection, new DataFactoryWrapper(dataFactory, Mock.Of<IPermanentLinkMapper>()).GetChildren(pageLinkParameter, selectorParameter));
+				Assert.AreEqual(pageDataCollection, new DataFactoryWrapper(dataFactory, Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).GetChildren(pageLinkParameter, selectorParameter));
 				Assert.IsTrue(getChildrenIsCalled);
 				Assert.AreEqual(pageLinkParameter, pageLinkValue);
 				Assert.AreEqual(selectorParameter, selectorValue);
@@ -512,7 +509,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 
 				try
 				{
-					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).GetDescendents(null);
+					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).GetDescendents(null);
 				}
 				catch(ArgumentNullException argumentNullException)
 				{
@@ -543,7 +540,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				ContentReference contentLinkParameter = new ContentReference(DateTime.Now.Second);
 
 				Assert.IsFalse(getDescendentsIsCalled);
-				IEnumerable<ContentReference> descendents = new DataFactoryWrapper(dataFactory, Mock.Of<IPermanentLinkMapper>()).GetDescendents(contentLinkParameter);
+				IEnumerable<ContentReference> descendents = new DataFactoryWrapper(dataFactory, Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).GetDescendents(contentLinkParameter);
 				Assert.IsTrue(getDescendentsIsCalled);
 				Assert.AreEqual(pageLinkValue, contentLinkParameter);
 				Assert.AreEqual(pageLinkValue.ID, contentLinkParameter.ID);
@@ -577,7 +574,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				PageReference pageLinkParameter = new PageReference();
 
 				Assert.IsFalse(getPageIsCalled);
-				Assert.AreEqual(pageData, new DataFactoryWrapper(dataFactory, Mock.Of<IPermanentLinkMapper>()).GetPage(pageLinkParameter));
+				Assert.AreEqual(pageData, new DataFactoryWrapper(dataFactory, Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).GetPage(pageLinkParameter));
 				Assert.IsTrue(getPageIsCalled);
 				Assert.AreEqual(pageLinkParameter, pageLinkValue);
 			}
@@ -607,7 +604,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				ILanguageSelector selectorParameter = Mock.Of<ILanguageSelector>();
 
 				Assert.IsFalse(getPageIsCalled);
-				Assert.AreEqual(pageData, new DataFactoryWrapper(dataFactory, Mock.Of<IPermanentLinkMapper>()).GetPage(pageLinkParameter, selectorParameter));
+				Assert.AreEqual(pageData, new DataFactoryWrapper(dataFactory, Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).GetPage(pageLinkParameter, selectorParameter));
 				Assert.IsTrue(getPageIsCalled);
 				Assert.AreEqual(pageLinkParameter, pageLinkValue);
 				Assert.AreEqual(selectorParameter, selectorValue);
@@ -622,7 +619,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			{
 				PageReference pageLink = CreateRandomPageReference();
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Throws(new PageNotFoundException(pageLink));
 
 				try
@@ -644,7 +641,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Throws(new InvalidOperationException());
 				dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(DateTime.Now.Millisecond), Mock.Of<ILanguageSelector>());
 			}
@@ -657,7 +654,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).Get<IContentData>(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null, Mock.Of<ILanguageSelector>());
+				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).Get<IContentData>(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null, Mock.Of<ILanguageSelector>());
 			}
 		}
 
@@ -668,7 +665,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), CreateDefaultPageDataCaster(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Returns(new PageData());
 				dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(DateTime.Now.Millisecond), Mock.Of<ILanguageSelector>());
 			}
@@ -683,7 +680,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				pageDataMock.As<IContent>();
 				PageData pageData = pageDataMock.Object;
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), CreateDefaultPageDataCaster(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Returns(pageData);
 				IContent content = dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(DateTime.Now.Millisecond), Mock.Of<ILanguageSelector>());
 				Assert.AreEqual(pageData, content);
@@ -698,7 +695,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				Mock<PageData> pageDataMock = new Mock<PageData>();
 				pageDataMock.As<IContent>();
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>())).Returns(pageDataMock.Object);
 				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>(), It.IsAny<ILanguageSelector>()), Times.Never());
 				dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(DateTime.Now.Millisecond), Mock.Of<ILanguageSelector>());
@@ -714,7 +711,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			{
 				PageReference pageLink = CreateRandomPageReference();
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>())).Throws(new PageNotFoundException(pageLink));
 
 				try
@@ -736,7 +733,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>())).Throws(new InvalidOperationException());
 				dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(DateTime.Now.Millisecond));
 			}
@@ -749,7 +746,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).Get<IContentData>(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null);
+				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).Get<IContentData>(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null);
 			}
 		}
 
@@ -760,7 +757,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), CreateDefaultPageDataCaster(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>())).Returns(new PageData());
 				dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(DateTime.Now.Millisecond));
 			}
@@ -775,7 +772,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				pageDataMock.As<IContent>();
 				PageData pageData = pageDataMock.Object;
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), CreateDefaultPageDataCaster(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>())).Returns(pageData);
 				IContent content = dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(DateTime.Now.Millisecond));
 				Assert.AreEqual(pageData, content);
@@ -790,7 +787,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				Mock<PageData> pageDataMock = new Mock<PageData>();
 				pageDataMock.As<IContent>();
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>())).Returns(pageDataMock.Object);
 				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.GetPage(It.IsAny<PageReference>()), Times.Never());
 				dataFactoryWrapperMock.Object.Get<IContent>(new ContentReference(DateTime.Now.Millisecond));
@@ -809,7 +806,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				permanentLinkMapperMock.Setup(permanentLinkMapper => permanentLinkMapper.Find(contentGuid)).Returns(new PermanentPageLinkMap(contentGuid, null, null, Mock.Of<PageReference>(), null));
 
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), permanentLinkMapperMock.Object}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), permanentLinkMapperMock.Object}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.Get<IContent>(It.IsAny<ContentReference>(), It.IsAny<ILanguageSelector>())).Returns(Mock.Of<IContent>());
 				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.Get<IContent>(It.IsAny<ContentReference>(), It.IsAny<ILanguageSelector>()), Times.Never());
 				dataFactoryWrapperMock.Object.Get<IContent>(contentGuid, Mock.Of<ILanguageSelector>());
@@ -829,7 +826,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				permanentLinkMapperMock.Setup(permanentLinkMapper => permanentLinkMapper.Find(contentGuid)).Returns((PermanentPageLinkMap) null);
 
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), permanentLinkMapperMock.Object}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), permanentLinkMapperMock.Object}) {CallBase = true};
 
 				try
 				{
@@ -854,7 +851,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				permanentLinkMapperMock.Setup(permanentLinkMapper => permanentLinkMapper.Find(contentGuid)).Returns(new PermanentPageLinkMap(contentGuid, null, null, Mock.Of<PageReference>(), null));
 
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), permanentLinkMapperMock.Object}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), permanentLinkMapperMock.Object}) {CallBase = true};
 				dataFactoryWrapperMock.Setup(dataFactoryWrapper => dataFactoryWrapper.Get<IContent>(It.IsAny<ContentReference>())).Returns(Mock.Of<IContent>());
 				dataFactoryWrapperMock.Verify(dataFactoryWrapper => dataFactoryWrapper.Get<IContent>(It.IsAny<ContentReference>()), Times.Never());
 				dataFactoryWrapperMock.Object.Get<IContent>(contentGuid);
@@ -874,7 +871,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				permanentLinkMapperMock.Setup(permanentLinkMapper => permanentLinkMapper.Find(contentGuid)).Returns((PermanentPageLinkMap) null);
 
 				ShimDataFactory.StaticConstructor = () => { };
-				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), permanentLinkMapperMock.Object}) {CallBase = true};
+				Mock<DataFactoryWrapper> dataFactoryWrapperMock = new Mock<DataFactoryWrapper>(new object[] {new DataFactory(), Mock.Of<IPageDataCaster>(), permanentLinkMapperMock.Object}) {CallBase = true};
 
 				try
 				{
@@ -904,7 +901,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 
 				Assert.IsFalse(moveToWastebasketCalled);
 
-				new DataFactoryWrapper(shimDataFactory, Mock.Of<IPermanentLinkMapper>()).MoveToWastebasket(It.IsAny<ContentReference>(), It.IsAny<string>());
+				new DataFactoryWrapper(shimDataFactory, Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).MoveToWastebasket(It.IsAny<ContentReference>(), It.IsAny<string>());
 
 				Assert.IsTrue(moveToWastebasketCalled);
 			}
@@ -917,7 +914,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).Save(Mock.Of<IContent>(), It.IsAny<SaveAction>(), It.IsAny<AccessLevel>());
+				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).Save(Mock.Of<IContent>(), It.IsAny<SaveAction>(), It.IsAny<AccessLevel>());
 			}
 		}
 
@@ -931,7 +928,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 
 				try
 				{
-					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).Save(null, It.IsAny<SaveAction>(), It.IsAny<AccessLevel>());
+					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).Save(null, It.IsAny<SaveAction>(), It.IsAny<AccessLevel>());
 				}
 				catch(ArgumentNullException argumentNullException)
 				{
@@ -965,7 +962,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				Mock<PageData> pageDataMock = new Mock<PageData> {CallBase = true};
 				Mock<IContent> contentMock = pageDataMock.As<IContent>();
 
-				Assert.AreEqual(pageReference, new DataFactoryWrapper(shimDataFactory, Mock.Of<IPermanentLinkMapper>()).Save(contentMock.Object, It.IsAny<SaveAction>(), It.IsAny<AccessLevel>()));
+				Assert.AreEqual(pageReference, new DataFactoryWrapper(shimDataFactory, Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).Save(contentMock.Object, It.IsAny<SaveAction>(), It.IsAny<AccessLevel>()));
 
 				Assert.IsTrue(saveCalled);
 			}
@@ -977,7 +974,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 			using(ShimsContext.Create())
 			{
 				ShimDataFactory.StaticConstructor = () => { };
-				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).ThrowArgumentNullExceptionIfContentLinkIsNullOrEmpty(new ContentReference(DateTime.Now.Millisecond));
+				new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).ThrowArgumentNullExceptionIfContentLinkIsNullOrEmpty(new ContentReference(DateTime.Now.Millisecond));
 			}
 		}
 
@@ -996,7 +993,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 				ShimDataFactory.StaticConstructor = () => { };
 				try
 				{
-					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).ThrowArgumentNullExceptionIfContentLinkIsNullOrEmpty(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null);
+					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>()).ThrowArgumentNullExceptionIfContentLinkIsNullOrEmpty(DateTime.Now.Second%2 == 0 ? ContentReference.EmptyReference : null);
 				}
 				catch(ArgumentNullException argumentNullException)
 				{
@@ -1007,82 +1004,6 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.ShimTests // ReSharper restor
 
 			Thread.CurrentThread.CurrentCulture = currentCulture;
 			Thread.CurrentThread.CurrentUICulture = currentUiCulture;
-		}
-
-		[TestMethod]
-		[ExpectedException(typeof(TypeMismatchException))]
-		public void ThrowTypeMismatchException_IfTheActualTypeParameterIsNull_ShouldThrowATypeMismatchException()
-		{
-			using(ShimsContext.Create())
-			{
-				ShimDataFactory.StaticConstructor = () => { };
-				try
-				{
-					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).ThrowTypeMismatchException(new ContentReference(1), null, typeof(string));
-				}
-				catch(TypeMismatchException typeMismatchException)
-				{
-					if(typeMismatchException.Message == "Content with id '1' is of type '' which does not inherit required type 'System.String'")
-						throw;
-				}
-			}
-		}
-
-		[TestMethod]
-		[ExpectedException(typeof(TypeMismatchException))]
-		public void ThrowTypeMismatchException_IfTheContentLinkParameterIsNull_ShouldThrowATypeMismatchException()
-		{
-			using(ShimsContext.Create())
-			{
-				ShimDataFactory.StaticConstructor = () => { };
-				try
-				{
-					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).ThrowTypeMismatchException(null, typeof(object), typeof(string));
-				}
-				catch(TypeMismatchException typeMismatchException)
-				{
-					if(typeMismatchException.Message == "Content with id '' is of type 'System.Object' which does not inherit required type 'System.String'")
-						throw;
-				}
-			}
-		}
-
-		[TestMethod]
-		[ExpectedException(typeof(TypeMismatchException))]
-		public void ThrowTypeMismatchException_IfTheRequiredTypeParameterIsNull_ShouldThrowATypeMismatchException()
-		{
-			using(ShimsContext.Create())
-			{
-				ShimDataFactory.StaticConstructor = () => { };
-				try
-				{
-					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).ThrowTypeMismatchException(new ContentReference(1), typeof(object), null);
-				}
-				catch(TypeMismatchException typeMismatchException)
-				{
-					if(typeMismatchException.Message == "Content with id '1' is of type 'System.Object' which does not inherit required type ''")
-						throw;
-				}
-			}
-		}
-
-		[TestMethod]
-		[ExpectedException(typeof(TypeMismatchException))]
-		public void ThrowTypeMismatchException_ShouldThrowATypeMismatchException()
-		{
-			using(ShimsContext.Create())
-			{
-				ShimDataFactory.StaticConstructor = () => { };
-				try
-				{
-					new DataFactoryWrapper(new DataFactory(), Mock.Of<IPermanentLinkMapper>()).ThrowTypeMismatchException(new ContentReference(1), typeof(object), typeof(string));
-				}
-				catch(TypeMismatchException typeMismatchException)
-				{
-					if(typeMismatchException.Message == "Content with id '1' is of type 'System.Object' which does not inherit required type 'System.String'")
-						throw;
-				}
-			}
 		}
 
 		#endregion

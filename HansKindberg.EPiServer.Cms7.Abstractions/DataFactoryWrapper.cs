@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using EPiServer;
@@ -8,6 +7,7 @@ using EPiServer.Core;
 using EPiServer.DataAccess;
 using EPiServer.Security;
 using EPiServer.Web;
+using HansKindberg.EPiServer.Cms7.Abstractions.Core;
 
 // ReSharper disable CheckNamespace
 
@@ -18,21 +18,26 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 		#region Fields
 
 		private readonly DataFactory _dataFactory;
+		private readonly IPageDataCaster _pageDataCaster;
 		private readonly IPermanentLinkMapper _permanentLinkMapper;
 
 		#endregion
 
 		#region Constructors
 
-		public DataFactoryWrapper(DataFactory dataFactory, IPermanentLinkMapper permanentLinkMapper)
+		public DataFactoryWrapper(DataFactory dataFactory, IPageDataCaster pageDataCaster, IPermanentLinkMapper permanentLinkMapper)
 		{
 			if(dataFactory == null)
 				throw new ArgumentNullException("dataFactory");
+
+			if(pageDataCaster == null)
+				throw new ArgumentNullException("pageDataCaster");
 
 			if(permanentLinkMapper == null)
 				throw new ArgumentNullException("permanentLinkMapper");
 
 			this._dataFactory = dataFactory;
+			this._pageDataCaster = pageDataCaster;
 			this._permanentLinkMapper = permanentLinkMapper;
 		}
 
@@ -40,12 +45,17 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 
 		#region Properties
 
-		protected internal DataFactory DataFactory
+		protected internal virtual DataFactory DataFactory
 		{
 			get { return this._dataFactory; }
 		}
 
-		protected internal IPermanentLinkMapper PermanentLinkMapper
+		protected internal virtual IPageDataCaster PageDataCaster
+		{
+			get { return this._pageDataCaster; }
+		}
+
+		protected internal virtual IPermanentLinkMapper PermanentLinkMapper
 		{
 			get { return this._permanentLinkMapper; }
 		}
@@ -53,21 +63,6 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 		#endregion
 
 		#region Methods
-
-		[SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "CastOr")]
-		protected internal virtual T CastOrThrowTypeMismatchException<T>(PageData pageData, ContentReference contentLink) where T : IContentData
-		{
-			if(pageData != null)
-			{
-				Type actualType = pageData.GetType();
-				Type requiredType = typeof(T);
-
-				if(!requiredType.IsAssignableFrom(actualType))
-					this.ThrowTypeMismatchException(contentLink, actualType, requiredType);
-			}
-
-			return (T) (object) pageData;
-		}
 
 		public virtual ContentReference Copy(ContentReference source, ContentReference destination, AccessLevel requiredSourceAccess, AccessLevel requiredDestinationAccess, bool publishOnDestination)
 		{
@@ -100,7 +95,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 
 			try
 			{
-				return this.CastOrThrowTypeMismatchException<T>(this.GetPage(contentLink.ToPageReference()), contentLink);
+				return this.PageDataCaster.CastToContentOrThrowTypeMismatchException<T>(this.GetPage(contentLink.ToPageReference()));
 			}
 			catch(PageNotFoundException)
 			{
@@ -124,7 +119,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 
 			try
 			{
-				return this.CastOrThrowTypeMismatchException<T>(this.GetPage(contentLink.ToPageReference(), selector), contentLink);
+				return this.PageDataCaster.CastToContentOrThrowTypeMismatchException<T>(this.GetPage(contentLink.ToPageReference(), selector));
 			}
 			catch(PageNotFoundException)
 			{
@@ -282,11 +277,6 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions // ReSharper restore CheckNam
 		{
 			if(ContentReference.IsNullOrEmpty(contentLink))
 				throw new ArgumentNullException("contentLink", "The provided content link does not have a value.");
-		}
-
-		protected internal virtual void ThrowTypeMismatchException(ContentReference contentLink, Type actualType, Type requiredType)
-		{
-			throw new TypeMismatchException(string.Format(CultureInfo.InvariantCulture, "Content with id '{0}' is of type '{1}' which does not inherit required type '{2}'", contentLink, actualType, requiredType));
 		}
 
 		#endregion

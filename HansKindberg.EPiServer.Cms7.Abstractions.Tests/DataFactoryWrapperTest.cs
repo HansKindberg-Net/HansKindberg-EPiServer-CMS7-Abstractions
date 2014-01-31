@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using EPiServer.Web;
+using HansKindberg.EPiServer.Cms7.Abstractions.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -21,7 +22,7 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.Tests // ReSharper restore Ch
 			try
 			{
 				// ReSharper disable ObjectCreationAsStatement
-				new DataFactoryWrapper(null, Mock.Of<IPermanentLinkMapper>());
+				new DataFactoryWrapper(null, Mock.Of<IPageDataCaster>(), Mock.Of<IPermanentLinkMapper>());
 				// ReSharper restore ObjectCreationAsStatement
 			}
 			catch(ArgumentNullException argumentNullException)

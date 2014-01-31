@@ -96,10 +96,12 @@
     <Compile Include="Core\ILocalizable.cs" />
     <Compile Include="Core\IModifiedTrackable.cs" />
     <Compile Include="Core\ILegacyResourceable.cs" />
+    <Compile Include="Core\IPageDataCaster.cs" />
     <Compile Include="Core\IResourceable.cs" />
     <Compile Include="Core\IVersionable.cs" />
     <Compile Include="Core\LanguageManagerWrapper.cs" />
     <Compile Include="Core\LanguageSelectorFactory.cs" />
+    <Compile Include="Core\PageDataCaster.cs" />
     <Compile Include="Core\TypeMismatchException .cs" />
     <Compile Include="DataAbstraction\ContentVersion.cs" />
     <Compile Include="DataAbstraction\Extensions\ContentVersionExtension.cs" />
