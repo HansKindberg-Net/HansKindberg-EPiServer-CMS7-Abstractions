@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using EPiServer.Core;
+﻿using EPiServer.Core;
 using HansKindberg.EPiServer.Cms7.Abstractions.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -15,21 +14,18 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.Tests.Core // ReSharper resto
 
 		[TestMethod]
 		[ExpectedException(typeof(TypeMismatchException))]
-		[SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "CastOr")]
 		public void CastToContentOrThrowTypeMismatchException_IfThePageDataParameterIsNotOfRequiredType_ShouldThrowATypeMismatchException()
 		{
 			new PageDataCaster().CastToContentOrThrowTypeMismatchException<IContentData>(new PageData());
 		}
 
 		[TestMethod]
-		[SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "CastOr")]
 		public void CastToContentOrThrowTypeMismatchException_IfThePageDataParameterIsNull_ShouldReturnNull()
 		{
 			Assert.IsNull(new PageDataCaster().CastToContentOrThrowTypeMismatchException<IContentData>(null));
 		}
 
 		[TestMethod]
-		[SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "CastOr")]
 		public void CastToContentOrThrowTypeMismatchException_IfThePageDataParameterIsOfRequiredType_ShouldReturnThePageDataParameterCasted()
 		{
 			Mock<PageData> pageDataMock = new Mock<PageData>();
@@ -38,6 +34,12 @@ namespace HansKindberg.EPiServer.Cms7.Abstractions.Tests.Core // ReSharper resto
 
 			IContent castedPageData = new PageDataCaster().CastToContentOrThrowTypeMismatchException<IContent>(pageData);
 			Assert.AreEqual(pageData, castedPageData);
+		}
+
+		[TestMethod]
+		public void PageDataCaster_PrerequisiteTest_ThePageLinkPropertyOfThePageDataObject_ShouldReturnAnEmptyPageReferenceByDefault()
+		{
+			Assert.AreEqual(PageReference.EmptyReference, new PageData().PageLink);
 		}
 
 		[TestMethod]
